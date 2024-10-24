@@ -20,14 +20,7 @@ const historyModal = document.getElementById('historyModal');
 const closeModalBtn = document.querySelector('.close');
 const historyContentDiv = document.getElementById('historyContent');
 
-// Add event listener for the potted ball dropdown
-pottedBallSelect.addEventListener('change', updateRecordButton);
 
-// Function to update the button text
-function updateRecordButton() {
-    const selectedBall = pottedBallSelect.value;
-    recordScoreBtn.textContent = `ボール ${selectedBall} を記録`; // Change button text to show the selected ball number
-}
 
 // ゲームの状態を保持するための変数
 let players = [];
@@ -50,6 +43,13 @@ viewHistoryBtn.addEventListener('click', openHistoryModal);
 closeModalBtn.addEventListener('click', closeHistoryModal);
 window.addEventListener('click', outsideClick);
 endGameBtn.addEventListener('click', endGame);
+pottedBallSelect.addEventListener('change', updateRecordScoreButtonText);
+
+function updateRecordScoreButtonText() {
+    const selectedBall = pottedBallSelect.value;
+    recordScoreBtn.textContent = selectedBall;
+}
+
 
 function generatePlayerInputs() {
     playerNamesDiv.innerHTML = '';
@@ -127,6 +127,7 @@ function updatePottedBallOptions() {
         option.textContent = ball;
         pottedBallSelect.appendChild(option);
     });
+updateRecordScoreButtonText();
 }
 
 function updateScoreBoard() {
@@ -203,7 +204,11 @@ function recordScore() {
     let nextIndex = (currentIndex + 1) % options.length;
 
     // 選択を次のボールに変更
+    // Change the selected ball to the next one
     pottedBallSelect.selectedIndex = nextIndex;
+
+    // Update the button text to reflect the new selection
+    updateRecordScoreButtonText();
 }
 
 function recordScratch() {
