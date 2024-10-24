@@ -104,3 +104,20 @@ button {
     height: 100px; /* Adjust based on the image's original dimensions */
 }
 
+/* Style for the endGame button */
+#endGame {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Makes the button round */
+    background-color: red;
+    color: white;
+    border: none;
+    position: fixed;
+    top: 20px; /* Positioning at the top */
+    right: 20px; /* Positioning at the right */
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
+    line-height: 50px; /* Center the text vertically */
+}
+
