@@ -1,80 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>5.9 Cue Sport Scorekeeper</title>
+    <title>5.9 キュースポーツスコアキーパー</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>5.9 Cue Sport Scorekeeper</h1>
+    <h1>5.9 キュースポーツスコアキーパー</h1>
 
     <div id="setup">
-        <h2>Game Setup</h2>
-        <label for="gameType">Select Game Type:</label>
+        <h2>ゲーム設定</h2>
+        <label for="gameType">ゲームタイプを選択:</label>
         <select id="gameType">
-            <option value="standard">Standard</option>
-            <option value="custom">Custom (Include Balls 3 and 7)</option>
+            <option value="standard">スタンダード</option>
+            <option value="custom">カスタム (3番と7番を含む)</option>
         </select>
 
-        <label for="numPlayers">Number of Players:</label>
+        <label for="numPlayers">プレイヤー人数:</label>
         <select id="numPlayers">
-            <option value="2">2 Players</option>
-            <option value="3">3 Players</option>
-            <option value="4">4 Players</option>
+            <option value="2">2名描き</option>
+            <option value="3">3名描き</option>
+            <option value="4">4名描き</option>
         </select>
 
         <div id="playerNames">
-            <!-- Player name inputs will be generated here -->
+            <!-- プレイヤー名入力がここに生成されます -->
         </div>
 
-        <button id="startGame">Start Game</button>
+        <button id="startGame">ゲーム開始</button>
     </div>
 
     <div id="game" style="display:none;">
-        <h2>Game in Progress</h2>
+        <h2>ゲーム進行中</h2>
         <div id="scoreBoard">
-            <!-- Scoreboard will be generated here -->
+            <!-- スコアボードがここに生成されます -->
         </div>
 
         <div id="actions">
-            <h3>Record Score</h3>
-            <label for="currentPlayer">Current Player:</label>
+            <h3>点数記録</h3>
+            <label for="currentPlayer">現在のプレイヤー:</label>
             <select id="currentPlayer">
-                <!-- Player options will be generated here -->
+                <!-- プレイヤーオプションがここに生成されます -->
             </select>
 
-            <label for="pottedBall">Potted Ball:</label>
+            <label for="pottedBall">ポットされたボール:</label>
             <select id="pottedBall">
-                <!-- Ball options will be generated here -->
+                <!-- ボールのオプションがここに生成されます -->
             </select>
 
-            <label for="pocketType">Pocket Type:</label>
+            <label for="pocketType">ポケットタイプ:</label>
             <select id="pocketType">
-                <option value="corner">Corner Pocket</option>
-                <option value="side">Side Pocket</option>
+                <option value="corner">コーナーポケット</option>
+                <option value="side">サイドポケット</option>
             </select>
 
-            <button id="recordScore">Record Score</button>
-            <button id="scratch">Scratch</button>
-            <button id="nextPlayer">Next Player</button>
-            <button id="undo">Undo</button>
-            <button id="viewHistory">View Score History</button>
+            <button id="recordScore">点数を記録</button>
+            <button id="scratch">スクラッチ</button>
+            <button id="nextPlayer">次のプレイヤー</button>
+            <button id="undo">取り消す</button>
+            <button id="viewHistory">スコア履歴を見る</button>
         </div>
 
         <div id="turnOrder">
-            <!-- Turn order information will be displayed here -->
+            <!-- 順番情報がここに表示されます -->
         </div>
 
-        <button id="endGame">End Game</button>
+        <button id="endGame">ゲーム終了</button>
     </div>
 
-    <!-- Modal for Score History -->
+    <!-- スコア履歴のモーダル -->
     <div id="historyModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Score History</h2>
+            <h2>スコア履歴</h2>
             <div id="historyContent">
-                <!-- Score history will be displayed here -->
+                <!-- スコア履歴がここに表示されます -->
             </div>
         </div>
     </div>
