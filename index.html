@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>5.9 Cue Sport Scorekeeper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>5.9 Cue Sport Scorekeeper</h1>
+
+    <div id="setup">
+        <h2>Game Setup</h2>
+        <label for="gameType">Select Game Type:</label>
+        <select id="gameType">
+            <option value="standard">Standard</option>
+            <option value="custom">Custom (Include Balls 3 and 7)</option>
+        </select>
+
+        <label for="numPlayers">Number of Players:</label>
+        <select id="numPlayers">
+            <option value="2">2 Players</option>
+            <option value="3">3 Players</option>
+            <option value="4">4 Players</option>
+        </select>
+
+        <div id="playerNames">
+            <!-- Player name inputs will be generated here -->
+        </div>
+
+        <button id="startGame">Start Game</button>
+    </div>
+
+    <div id="game" style="display:none;">
+        <h2>Game in Progress</h2>
+        <div id="scoreBoard">
+            <!-- Scoreboard will be generated here -->
+        </div>
+
+        <div id="actions">
+            <h3>Record Score</h3>
+            <label for="currentPlayer">Current Player:</label>
+            <select id="currentPlayer">
+                <!-- Player options will be generated here -->
+            </select>
+
+            <label for="pottedBall">Potted Ball:</label>
+            <select id="pottedBall">
+                <option value="5">5</option>
+                <option value="9">9</option>
+                <!-- Include balls 3 and 7 if custom game -->
+            </select>
+
+            <label for="pocketType">Pocket Type:</label>
+            <select id="pocketType">
+                <option value="corner">Corner Pocket</option>
+                <option value="side">Side Pocket</option>
+            </select>
+
+            <button id="recordScore">Record Score</button>
+            <button id="scratch">Scratch</button>
+        </div>
+
+        <div id="turnOrder">
+            <!-- Turn order information will be displayed here -->
+        </div>
+
+        <button id="endGame">End Game</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
