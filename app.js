@@ -1,4 +1,4 @@
-// Get references to DOM elements
+// DOM要素への参照を取得
 const gameTypeSelect = document.getElementById('gameType');
 const numPlayersSelect = document.getElementById('numPlayers');
 const playerNamesDiv = document.getElementById('playerNames');
@@ -20,17 +20,17 @@ const historyModal = document.getElementById('historyModal');
 const closeModalBtn = document.querySelector('.close');
 const historyContentDiv = document.getElementById('historyContent');
 
-// Variables to hold game state
+// ゲームの状態を保持するための変数
 let players = [];
 let scores = {};
 let turnOrder = [];
 let currentTurnIndex = 0;
 let totalRacks = 0;
 let gameType = 'standard';
-let actionHistory = []; // For undo functionality
-let scoreHistory = []; // For viewing score history
+let actionHistory = []; // 元に戻す機能のため
+let scoreHistory = []; // スコア履歴を見るため
 
-// Event listeners
+// イベントリスナー
 numPlayersSelect.addEventListener('change', generatePlayerInputs);
 startGameBtn.addEventListener('click', startGame);
 recordScoreBtn.addEventListener('click', recordScore);
@@ -47,7 +47,7 @@ function generatePlayerInputs() {
     const numPlayers = parseInt(numPlayersSelect.value);
     for (let i = 1; i <= numPlayers; i++) {
         const label = document.createElement('label');
-        label.textContent = `Player ${i} Name:`;
+        label.textContent = `プレイヤー ${i} 名:`;
         const input = document.createElement('input');
         input.type = 'text';
         input.id = `player${i}`;
@@ -69,18 +69,18 @@ function startGame() {
     scoreHistory = [];
 
     for (let i = 1; i <= numPlayers; i++) {
-        const playerName = document.getElementById(`player${i}`).value || `Player ${i}`;
+        const playerName = document.getElementById(`player${i}`).value || `プレイヤー ${i}`;
         players.push(playerName);
         scores[playerName] = 0;
     }
 
-    // Setup turn order
+    // 順番設定
     turnOrder = [...players];
 
-    // Setup score board
+    // スコアボード設定
     updateScoreBoard();
 
-    // Populate current player select
+    // 現在のプレイヤー選択を設定
     currentPlayerSelect.innerHTML = '';
     players.forEach(player => {
         const option = document.createElement('option');
@@ -89,10 +89,10 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    // Handle potted ball options
+    // ポットされたボールオプションを設定
     updatePottedBallOptions();
 
-    // Show game div and hide setup
+    // ゲーム画面を表示、設定画面を非表示
     document.getElementById('setup').style.display = 'none';
     gameDiv.style.display = 'block';
 
@@ -100,18 +100,18 @@ function startGame() {
 }
 
 function updatePottedBallOptions() {
-    // Clear existing options
+    // 既存オプションをクリア
     pottedBallSelect.innerHTML = '';
 
-    // Standard balls
+    // スタンダードボール
     let balls = ['5', '9'];
 
-    // If custom game, include balls 3 and 7
+    // カスタムゲームの場合、3番と7番を含む
     if (gameType === 'custom') {
         balls = ['3', '5', '7', '9'];
     }
 
-    // Populate potted ball select
+    // ポットされたボールセレクトを設定
     balls.forEach(ball => {
         const option = document.createElement('option');
         option.value = ball;
@@ -121,7 +121,7 @@ function updatePottedBallOptions() {
 }
 
 function updateScoreBoard() {
-    scoreBoardDiv.innerHTML = '<h3>Score Board</h3>';
+    scoreBoardDiv.innerHTML = '<h3>スコアボード</h3>';
     const table = document.createElement('table');
     const headerRow = document.createElement('tr');
     players.forEach(player => {
@@ -149,17 +149,17 @@ function recordScore() {
 
     let points = 0;
 
-    // Calculate points based on the rules
+    // ルールに基づいてポイント計算
     if (ball === '5') {
         points = pocket === 'corner' ? 1 : 2;
     } else if (ball === '9') {
         points = pocket === 'corner' ? 2 : 4;
     } else if (gameType === 'custom' && (ball === '3' || ball === '7')) {
-        // Assign points for custom balls
-        points = 1; // Adjust points as per custom rules
+        // カスタムボールの場合のポイント設定
+        points = 1; // カスタムルールに基づいて調整
     }
 
-    // Save current state for undo
+    // 元に戻すための現在の状態を保存
     saveAction({
         type: 'score',
         player: player,
@@ -169,10 +169,10 @@ function recordScore() {
         pocket: pocket
     });
 
-    // Update scores
+    // スコアを更新
     scores[player] += points;
 
-    // For 3+ players, points are deducted from others
+    // 3名以上のプレイヤーの場合、他のプレイヤーからポイントを引く
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -183,58 +183,58 @@ function recordScore() {
 
     updateScoreBoard();
 
-    // Add to score history
-    scoreHistory.push(`${player} potted ball ${ball} in the ${pocket} pocket for ${points} points.`);
+    // スコア履歴に追加
+    scoreHistory.push(`${player} はボール ${ball} を ${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて ${points} ポイント獲得。`);
 
-    // Automatically change the "Potted Ball" dropdown to the next ball in order
+    // 次のボールを自動的に選択
     const options = Array.from(pottedBallSelect.options);
     const currentIndex = options.findIndex(option => option.value === ball);
 
-    // Calculate next index
+    // 次のインデックスを計算
     let nextIndex = (currentIndex + 1) % options.length;
 
-    // Set the selected index to the next index
+    // 選択を次のボールに変更
     pottedBallSelect.selectedIndex = nextIndex;
 }
 
 function recordScratch() {
     const player = currentPlayerSelect.value;
 
-    // Save current state for undo
+    // 元に戻すための現在の状態を保存
     saveAction({
         type: 'scratch',
         player: player,
         scoresSnapshot: { ...scores }
     });
 
-    // Add to score history
-    scoreHistory.push(`${player} scratched. No points awarded.`);
+    // スコア履歴に追加
+    scoreHistory.push(`${player} はスクラッチしました。ポイントはありません。`);
 
-    // After a scratch, the turn passes to the next player
+    // スクラッチ後、ターンを次のプレイヤーに渡す
     nextTurn();
 }
 
 function nextPlayer() {
-    // Save current state for undo
+    // 元に戻すための現在の状態を保存
     saveAction({
         type: 'nextPlayer',
         previousTurnIndex: currentTurnIndex
     });
 
-    // Manually move to the next player
+    // 手動で次のプレイヤーに移行
     nextTurn();
 }
 
 function nextTurn() {
     totalRacks++;
 
-    // Update turn order based on the rules
+    // ルールに基づいて順番を更新
     if (players.length === 3 && totalRacks % 5 === 0) {
         turnOrder.reverse();
-        alert('Turn order has been reversed after 5 racks.');
+        alert('5ゲーム後、順番が逆になります。');
     } else if (players.length === 4 && totalRacks % 10 === 0) {
-        // Decide turn order via rock-paper-scissors (not implemented)
-        alert('After 10 games, decide turn order via rock-paper-scissors.');
+        // じゃんけんで順番を決める（未実装）
+        alert('10ゲーム後、じゃんけんで順番を決めてください。');
     }
 
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
@@ -244,13 +244,13 @@ function nextTurn() {
 }
 
 function updateTurnOrderDisplay() {
-    turnOrderDiv.innerHTML = `<p>Current Turn Order: ${turnOrder.join(' ➔ ')}</p>`;
-    // Highlight the current player
-    turnOrderDiv.innerHTML += `<p><strong>It's ${currentPlayerSelect.value}'s turn.</strong></p>`;
+    turnOrderDiv.innerHTML = `<p>現在の順番: ${turnOrder.join(' ➔ ')}</p>`;
+    // 現在のプレイヤーを強調表示
+    turnOrderDiv.innerHTML += `<p><strong>${currentPlayerSelect.value} のターンです。</strong></p>`;
 }
 
 function endGame() {
-    // Determine the winner
+    // 勝者を決定
     let maxScore = -Infinity;
     let winner = '';
     let tie = false;
@@ -266,12 +266,12 @@ function endGame() {
     });
 
     if (tie) {
-        alert(`Game Over! It's a tie between players with ${maxScore} points.`);
+        alert(`ゲーム終了！ ${maxScore} ポイントで引き分けです。`);
     } else {
-        alert(`Game Over! Winner: ${winner} with ${maxScore} points.`);
+        alert(`ゲーム終了！ 勝者: ${winner}、ポイント: ${maxScore}。`);
     }
 
-    // Reset the game
+    // ゲームをリセット
     resetGame();
 }
 
@@ -288,7 +288,7 @@ function saveAction(action) {
 
 function undoAction() {
     if (actionHistory.length === 0) {
-        alert('No actions to undo.');
+        alert('元に戻す操作がありません。');
         return;
     }
 
@@ -296,25 +296,25 @@ function undoAction() {
 
     switch (lastAction.type) {
         case 'score':
-            // Restore scores
+            // スコアを復元
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-            // Remove last entry from score history
+            // スコア履歴から最後のエントリを削除
             scoreHistory.pop();
             break;
         case 'scratch':
-            // Restore scores (if any changes were made)
+            // スコアを復元（変更があれば）
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-            // Undo turn change
+            // ターンの変更を元に戻す
             currentTurnIndex = (currentTurnIndex - 1 + players.length) % players.length;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
             updateTurnOrderDisplay();
-            // Remove last entry from score history
+            // スコア履歴から最後のエントリを削除
             scoreHistory.pop();
             break;
         case 'nextPlayer':
-            // Restore previous turn index
+            // 前のターンインデックスを復元
             currentTurnIndex = lastAction.previousTurnIndex;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
             updateTurnOrderDisplay();
@@ -340,7 +340,7 @@ function outsideClick(event) {
 function displayScoreHistory() {
     historyContentDiv.innerHTML = '';
     if (scoreHistory.length === 0) {
-        historyContentDiv.innerHTML = '<p>No actions recorded yet.</p>';
+        historyContentDiv.innerHTML = '<p>まだアクションが記録されていません。</p>';
         return;
     }
 
@@ -353,5 +353,5 @@ function displayScoreHistory() {
     historyContentDiv.appendChild(list);
 }
 
-// Initialize player inputs on page load
+// ページ読み込み時にプレイヤー入力を初期化
 generatePlayerInputs();
