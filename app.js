@@ -43,11 +43,40 @@ viewHistoryBtn.addEventListener('click', openHistoryModal);
 closeModalBtn.addEventListener('click', closeHistoryModal);
 window.addEventListener('click', outsideClick);
 endGameBtn.addEventListener('click', endGame);
-pottedBallSelect.addEventListener('change', updateRecordScoreButtonText);
+pottedBallSelect.addEventListener('change', updateRecordScoreButtonAppearance);
+
 
 function updateRecordScoreButtonText() {
     const selectedBall = pottedBallSelect.value;
     recordScoreBtn.textContent = selectedBall;
+}
+
+function updateRecordScoreButtonAppearance() {
+    const selectedBall = pottedBallSelect.value;
+    recordScoreBtn.setAttribute('data-number', selectedBall);
+
+    // Remove existing color classes
+    recordScoreBtn.classList.remove('red', 'orange', 'brown', 'yellow-stripe');
+
+    // Add the appropriate class based on the selected ball
+    switch (selectedBall) {
+        case '3':
+            recordScoreBtn.classList.add('red');
+            break;
+        case '5':
+            recordScoreBtn.classList.add('orange');
+            break;
+        case '7':
+            recordScoreBtn.classList.add('brown');
+            break;
+        case '9':
+            recordScoreBtn.classList.add('yellow-stripe');
+            break;
+        default:
+            // If no matching ball, default to black
+            recordScoreBtn.style.backgroundColor = 'black';
+            break;
+    }
 }
 
 
@@ -127,7 +156,7 @@ function updatePottedBallOptions() {
         option.textContent = ball;
         pottedBallSelect.appendChild(option);
     });
-updateRecordScoreButtonText();
+updateRecordScoreButtonAppearance();
 }
 
 function updateScoreBoard() {
@@ -208,7 +237,7 @@ function recordScore() {
     pottedBallSelect.selectedIndex = nextIndex;
 
     // Update the button text to reflect the new selection
-    updateRecordScoreButtonText();
+    updateRecordScoreButtonAppearance();
 }
 
 function recordScratch() {
