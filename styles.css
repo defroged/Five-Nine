@@ -87,3 +87,63 @@ button {
     font-weight: bold;
     cursor: pointer;
 }
+
+/* Base styles for the pool ball button */
+.pool-ball-button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: relative;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0;
+    margin: 10px;
+    background-color: black; /* Default color */
+    color: transparent; /* Hide any text inside the button */
+}
+
+/* Inner white circle */
+.pool-ball-button::before {
+    content: '';
+    position: absolute;
+    top: 25%; /* Adjust as needed */
+    left: 25%; /* Adjust as needed */
+    width: 50%;
+    height: 50%;
+    background-color: white;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+/* Ball number inside the white circle */
+.pool-ball-button::after {
+    content: attr(data-number);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: black;
+    font-size: 32px;
+    z-index: 2;
+}
+
+/* Specific colors for each ball */
+.pool-ball-button.red {
+    background-color: red;
+}
+
+.pool-ball-button.orange {
+    background-color: orange;
+}
+
+.pool-ball-button.brown {
+    background-color: brown;
+}
+
+/* Style for the 9-ball with stripes */
+.pool-ball-button.yellow-stripe {
+    background: linear-gradient(to bottom, white 0%, white 25%, yellow 25%, yellow 75%, white 75%, white 100%);
+}
