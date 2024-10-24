@@ -20,6 +20,15 @@ const historyModal = document.getElementById('historyModal');
 const closeModalBtn = document.querySelector('.close');
 const historyContentDiv = document.getElementById('historyContent');
 
+// Add event listener for the potted ball dropdown
+pottedBallSelect.addEventListener('change', updateRecordButton);
+
+// Function to update the button text
+function updateRecordButton() {
+    const selectedBall = pottedBallSelect.value;
+    recordScoreBtn.textContent = `ボール ${selectedBall} を記録`; // Change button text to show the selected ball number
+}
+
 // ゲームの状態を保持するための変数
 let players = [];
 let scores = {};
@@ -47,7 +56,7 @@ function generatePlayerInputs() {
     const numPlayers = parseInt(numPlayersSelect.value);
     for (let i = 1; i <= numPlayers; i++) {
         const label = document.createElement('label');
-        label.textContent = `プレイヤー ${i} 名:`;
+        label.textContent = `プレイヤー ${i}:`;
         const input = document.createElement('input');
         input.type = 'text';
         input.id = `player${i}`;
@@ -184,7 +193,7 @@ function recordScore() {
     updateScoreBoard();
 
     // スコア履歴に追加
-    scoreHistory.push(`${player} はボール ${ball} を ${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて ${points} ポイント獲得。`);
+    scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて、${points} ポイント獲得。`);
 
     // 次のボールを自動的に選択
     const options = Array.from(pottedBallSelect.options);
@@ -208,7 +217,7 @@ function recordScratch() {
     });
 
     // スコア履歴に追加
-    scoreHistory.push(`${player} はスクラッチしました。ポイントはありません。`);
+    scoreHistory.push(`${player}はスクラッチしました。ポイントはありません。`);
 
     // スクラッチ後、ターンを次のプレイヤーに渡す
     nextTurn();
