@@ -1,3 +1,4 @@
+// Get references to DOM elements
 const gameTypeSelect = document.getElementById('gameType');
 const numPlayersSelect = document.getElementById('numPlayers');
 const playerNamesDiv = document.getElementById('playerNames');
@@ -13,6 +14,7 @@ const scratchBtn = document.getElementById('scratch');
 const turnOrderDiv = document.getElementById('turnOrder');
 const endGameBtn = document.getElementById('endGame');
 
+// Variables to hold game state
 let players = [];
 let scores = {};
 let turnOrder = [];
@@ -20,11 +22,19 @@ let currentTurnIndex = 0;
 let totalRacks = 0;
 let gameType = 'standard';
 
+// Event listeners
 numPlayersSelect.addEventListener('change', generatePlayerInputs);
 startGameBtn.addEventListener('click', startGame);
 recordScoreBtn.addEventListener('click', recordScore);
 scratchBtn.addEventListener('click', recordScratch);
 endGameBtn.addEventListener('click', endGame);
+
+// Create "Next Player" button
+const nextPlayerBtn = document.createElement('button');
+nextPlayerBtn.id = 'nextPlayer';
+nextPlayerBtn.textContent = 'Next Player';
+actionsDiv.appendChild(nextPlayerBtn);
+nextPlayerBtn.addEventListener('click', nextPlayer);
 
 function generatePlayerInputs() {
     playerNamesDiv.innerHTML = '';
@@ -79,6 +89,13 @@ function startGame() {
             option.textContent = ball;
             pottedBallSelect.appendChild(option);
         });
+    } else {
+        // Ensure balls 3 and 7 are not in the select if game type is standard
+        Array.from(pottedBallSelect.options).forEach(option => {
+            if (option.value === '3' || option.value === '7') {
+                pottedBallSelect.removeChild(option);
+            }
+        });
     }
 
     // Show game div and hide setup
@@ -123,30 +140,38 @@ function recordScore() {
     } else if (ball === '9') {
         points = pocket === 'corner' ? 2 : 4;
     } else if (gameType === 'custom' && (ball === '3' || ball === '7')) {
-        // Custom rules can assign points to balls 3 and 7
-        points = 1; // Assign 1 point for these balls as an example
+        // Assign points for custom balls
+        points = 1; // You can adjust the points as per your custom rules
     }
 
     // Update scores
     scores[player] += points;
 
-    // For 3+ players, points can be received from others
+    // For 3+ players, points are deducted from others
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
-                // In this example, other players lose points equal to the points gained
                 scores[p] -= points;
             }
         });
     }
 
     updateScoreBoard();
-    nextTurn();
+
+    // Since the player continues as long as they pot a ball,
+    // we do not call nextTurn() here.
 }
 
 function recordScratch() {
     const player = currentPlayerSelect.value;
-    // Scratch results in 0 points; we can log or display this if needed
+    // Scratch results in 0 points; no score update needed
+
+    // After a scratch, the turn passes to the next player
+    nextTurn();
+}
+
+function nextPlayer() {
+    // Manually move to the next player
     nextTurn();
 }
 
@@ -156,6 +181,7 @@ function nextTurn() {
     // Update turn order based on the rules
     if (players.length === 3 && totalRacks % 5 === 0) {
         turnOrder.reverse();
+        alert('Turn order has been reversed after 5 racks.');
     } else if (players.length === 4 && totalRacks % 10 === 0) {
         // Decide turn order via rock-paper-scissors (not implemented)
         alert('After 10 games, decide turn order via rock-paper-scissors.');
@@ -168,25 +194,43 @@ function nextTurn() {
 }
 
 function updateTurnOrderDisplay() {
-    turnOrderDiv.textContent = `Current Turn Order: ${turnOrder.join(' -> ')}`;
+    turnOrderDiv.innerHTML = `<p>Current Turn Order: ${turnOrder.join(' ➔ ')}</p>`;
+    // Highlight the current player
+    turnOrderDiv.innerHTML += `<p><strong>It's ${currentPlayerSelect.value}'s turn.</strong></p>`;
 }
 
 function endGame() {
     // Determine the winner
     let maxScore = -Infinity;
     let winner = '';
+    let tie = false;
+
     players.forEach(player => {
         if (scores[player] > maxScore) {
             maxScore = scores[player];
             winner = player;
+            tie = false;
+        } else if (scores[player] === maxScore) {
+            tie = true;
         }
     });
 
-    alert(`Game Over! Winner: ${winner} with ${maxScore} points.`);
+    if (tie) {
+        alert(`Game Over! It's a tie between players with ${maxScore} points.`);
+    } else {
+        alert(`Game Over! Winner: ${winner} with ${maxScore} points.`);
+    }
 
     // Reset the game
-    document.getElementById('setup').style.display = 'block';
-    gameDiv.style.display = 'none';
+    resetGame();
 }
 
-generatePlayerInputs(); // Initialize player inputs on load
+function resetGame() {
+    document.getElementById('setup').style.display = 'block';
+    gameDiv.style.display = 'none';
+    playerNamesDiv.innerHTML = '';
+    generatePlayerInputs();
+}
+
+// Initialize player inputs on page load
+generatePlayerInputs();
