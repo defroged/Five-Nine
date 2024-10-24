@@ -53,31 +53,28 @@ function updateRecordScoreButtonText() {
 
 function updateRecordScoreButtonAppearance() {
     const selectedBall = pottedBallSelect.value;
-    recordScoreBtn.setAttribute('data-number', selectedBall);
+    const ballImage = document.getElementById('ballImage');
 
-    // Remove existing color classes
-    recordScoreBtn.classList.remove('red', 'orange', 'brown', 'yellow-stripe');
-
-    // Add the appropriate class based on the selected ball
+    // Set the corresponding image for each ball
     switch (selectedBall) {
         case '3':
-            recordScoreBtn.classList.add('red');
+            ballImage.src = '/assets/3ball.png';
             break;
         case '5':
-            recordScoreBtn.classList.add('orange');
+            ballImage.src = '/assets/5ball.png';
             break;
         case '7':
-            recordScoreBtn.classList.add('brown');
+            ballImage.src = '/assets/7ball.png';
             break;
         case '9':
-            recordScoreBtn.classList.add('yellow-stripe');
+            ballImage.src = '/assets/9ball.png';
             break;
         default:
-            // If no matching ball, default to black
-            recordScoreBtn.style.backgroundColor = 'black';
+            ballImage.src = '';
             break;
     }
 }
+
 
 
 function generatePlayerInputs() {
