@@ -81,28 +81,35 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    // Handle custom game type
-    if (gameType === 'custom') {
-        ['3', '7'].forEach(ball => {
-            const option = document.createElement('option');
-            option.value = ball;
-            option.textContent = ball;
-            pottedBallSelect.appendChild(option);
-        });
-    } else {
-        // Ensure balls 3 and 7 are not in the select if game type is standard
-        Array.from(pottedBallSelect.options).forEach(option => {
-            if (option.value === '3' || option.value === '7') {
-                pottedBallSelect.removeChild(option);
-            }
-        });
-    }
+    // Handle potted ball options
+    updatePottedBallOptions();
 
     // Show game div and hide setup
     document.getElementById('setup').style.display = 'none';
     gameDiv.style.display = 'block';
 
     updateTurnOrderDisplay();
+}
+
+function updatePottedBallOptions() {
+    // Clear existing options
+    pottedBallSelect.innerHTML = '';
+
+    // Standard balls
+    let balls = ['5', '9'];
+
+    // If custom game, include balls 3 and 7
+    if (gameType === 'custom') {
+        balls = ['3', '5', '7', '9'];
+    }
+
+    // Populate potted ball select
+    balls.forEach(ball => {
+        const option = document.createElement('option');
+        option.value = ball;
+        option.textContent = ball;
+        pottedBallSelect.appendChild(option);
+    });
 }
 
 function updateScoreBoard() {
@@ -141,7 +148,7 @@ function recordScore() {
         points = pocket === 'corner' ? 2 : 4;
     } else if (gameType === 'custom' && (ball === '3' || ball === '7')) {
         // Assign points for custom balls
-        points = 1; // You can adjust the points as per your custom rules
+        points = 1; // Adjust points as per custom rules
     }
 
     // Update scores
@@ -160,6 +167,16 @@ function recordScore() {
 
     // Since the player continues as long as they pot a ball,
     // we do not call nextTurn() here.
+
+    // Automatically change the "Potted Ball" dropdown to the next ball in order
+    const options = Array.from(pottedBallSelect.options);
+    const currentIndex = options.findIndex(option => option.value === ball);
+
+    // Calculate next index
+    let nextIndex = (currentIndex + 1) % options.length;
+
+    // Set the selected index to the next index
+    pottedBallSelect.selectedIndex = nextIndex;
 }
 
 function recordScratch() {
