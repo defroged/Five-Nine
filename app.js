@@ -11,8 +11,14 @@ const pottedBallSelect = document.getElementById('pottedBall');
 const pocketTypeSelect = document.getElementById('pocketType');
 const recordScoreBtn = document.getElementById('recordScore');
 const scratchBtn = document.getElementById('scratch');
+const nextPlayerBtn = document.getElementById('nextPlayer');
+const undoBtn = document.getElementById('undo');
+const viewHistoryBtn = document.getElementById('viewHistory');
 const turnOrderDiv = document.getElementById('turnOrder');
 const endGameBtn = document.getElementById('endGame');
+const historyModal = document.getElementById('historyModal');
+const closeModalBtn = document.querySelector('.close');
+const historyContentDiv = document.getElementById('historyContent');
 
 // Variables to hold game state
 let players = [];
@@ -21,20 +27,20 @@ let turnOrder = [];
 let currentTurnIndex = 0;
 let totalRacks = 0;
 let gameType = 'standard';
+let actionHistory = []; // For undo functionality
+let scoreHistory = []; // For viewing score history
 
 // Event listeners
 numPlayersSelect.addEventListener('change', generatePlayerInputs);
 startGameBtn.addEventListener('click', startGame);
 recordScoreBtn.addEventListener('click', recordScore);
 scratchBtn.addEventListener('click', recordScratch);
-endGameBtn.addEventListener('click', endGame);
-
-// Create "Next Player" button
-const nextPlayerBtn = document.createElement('button');
-nextPlayerBtn.id = 'nextPlayer';
-nextPlayerBtn.textContent = 'Next Player';
-actionsDiv.appendChild(nextPlayerBtn);
 nextPlayerBtn.addEventListener('click', nextPlayer);
+undoBtn.addEventListener('click', undoAction);
+viewHistoryBtn.addEventListener('click', openHistoryModal);
+closeModalBtn.addEventListener('click', closeHistoryModal);
+window.addEventListener('click', outsideClick);
+endGameBtn.addEventListener('click', endGame);
 
 function generatePlayerInputs() {
     playerNamesDiv.innerHTML = '';
@@ -59,6 +65,8 @@ function startGame() {
     turnOrder = [];
     currentTurnIndex = 0;
     totalRacks = 0;
+    actionHistory = [];
+    scoreHistory = [];
 
     for (let i = 1; i <= numPlayers; i++) {
         const playerName = document.getElementById(`player${i}`).value || `Player ${i}`;
@@ -151,6 +159,16 @@ function recordScore() {
         points = 1; // Adjust points as per custom rules
     }
 
+    // Save current state for undo
+    saveAction({
+        type: 'score',
+        player: player,
+        points: points,
+        scoresSnapshot: { ...scores },
+        ball: ball,
+        pocket: pocket
+    });
+
     // Update scores
     scores[player] += points;
 
@@ -165,8 +183,8 @@ function recordScore() {
 
     updateScoreBoard();
 
-    // Since the player continues as long as they pot a ball,
-    // we do not call nextTurn() here.
+    // Add to score history
+    scoreHistory.push(`${player} potted ball ${ball} in the ${pocket} pocket for ${points} points.`);
 
     // Automatically change the "Potted Ball" dropdown to the next ball in order
     const options = Array.from(pottedBallSelect.options);
@@ -181,13 +199,28 @@ function recordScore() {
 
 function recordScratch() {
     const player = currentPlayerSelect.value;
-    // Scratch results in 0 points; no score update needed
+
+    // Save current state for undo
+    saveAction({
+        type: 'scratch',
+        player: player,
+        scoresSnapshot: { ...scores }
+    });
+
+    // Add to score history
+    scoreHistory.push(`${player} scratched. No points awarded.`);
 
     // After a scratch, the turn passes to the next player
     nextTurn();
 }
 
 function nextPlayer() {
+    // Save current state for undo
+    saveAction({
+        type: 'nextPlayer',
+        previousTurnIndex: currentTurnIndex
+    });
+
     // Manually move to the next player
     nextTurn();
 }
@@ -227,7 +260,7 @@ function endGame() {
             maxScore = scores[player];
             winner = player;
             tie = false;
-        } else if (scores[player] === maxScore) {
+        } else if (scores[player] === maxScore && scores[player] !== 0) {
             tie = true;
         }
     });
@@ -247,6 +280,77 @@ function resetGame() {
     gameDiv.style.display = 'none';
     playerNamesDiv.innerHTML = '';
     generatePlayerInputs();
+}
+
+function saveAction(action) {
+    actionHistory.push(action);
+}
+
+function undoAction() {
+    if (actionHistory.length === 0) {
+        alert('No actions to undo.');
+        return;
+    }
+
+    const lastAction = actionHistory.pop();
+
+    switch (lastAction.type) {
+        case 'score':
+            // Restore scores
+            scores = lastAction.scoresSnapshot;
+            updateScoreBoard();
+            // Remove last entry from score history
+            scoreHistory.pop();
+            break;
+        case 'scratch':
+            // Restore scores (if any changes were made)
+            scores = lastAction.scoresSnapshot;
+            updateScoreBoard();
+            // Undo turn change
+            currentTurnIndex = (currentTurnIndex - 1 + players.length) % players.length;
+            currentPlayerSelect.value = turnOrder[currentTurnIndex];
+            updateTurnOrderDisplay();
+            // Remove last entry from score history
+            scoreHistory.pop();
+            break;
+        case 'nextPlayer':
+            // Restore previous turn index
+            currentTurnIndex = lastAction.previousTurnIndex;
+            currentPlayerSelect.value = turnOrder[currentTurnIndex];
+            updateTurnOrderDisplay();
+            break;
+    }
+}
+
+function openHistoryModal() {
+    historyModal.style.display = 'block';
+    displayScoreHistory();
+}
+
+function closeHistoryModal() {
+    historyModal.style.display = 'none';
+}
+
+function outsideClick(event) {
+    if (event.target == historyModal) {
+        historyModal.style.display = 'none';
+    }
+}
+
+function displayScoreHistory() {
+    historyContentDiv.innerHTML = '';
+    if (scoreHistory.length === 0) {
+        historyContentDiv.innerHTML = '<p>No actions recorded yet.</p>';
+        return;
+    }
+
+    const list = document.createElement('ol');
+    scoreHistory.forEach(entry => {
+        const listItem = document.createElement('li');
+        listItem.textContent = entry;
+        list.appendChild(listItem);
+    });
+    historyContentDiv.appendChild(list);
 }
 
 // Initialize player inputs on page load

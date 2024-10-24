@@ -45,9 +45,7 @@
 
             <label for="pottedBall">Potted Ball:</label>
             <select id="pottedBall">
-                <option value="5">5</option>
-                <option value="9">9</option>
-                <!-- Include balls 3 and 7 if custom game -->
+                <!-- Ball options will be generated here -->
             </select>
 
             <label for="pocketType">Pocket Type:</label>
@@ -58,6 +56,9 @@
 
             <button id="recordScore">Record Score</button>
             <button id="scratch">Scratch</button>
+            <button id="nextPlayer">Next Player</button>
+            <button id="undo">Undo</button>
+            <button id="viewHistory">View Score History</button>
         </div>
 
         <div id="turnOrder">
@@ -65,6 +66,17 @@
         </div>
 
         <button id="endGame">End Game</button>
+    </div>
+
+    <!-- Modal for Score History -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Score History</h2>
+            <div id="historyContent">
+                <!-- Score history will be displayed here -->
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

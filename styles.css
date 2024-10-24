@@ -24,7 +24,7 @@ select, input {
 }
 
 button {
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 10px;
     width: 100%;
 }
@@ -45,8 +45,45 @@ button {
     margin-top: 30px;
 }
 
+#actions button {
+    width: calc(33% - 10px);
+    margin-right: 10px;
+    display: inline-block;
+}
+
 #turnOrder {
     margin-top: 20px;
     text-align: center;
     font-weight: bold;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 800px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
 }
