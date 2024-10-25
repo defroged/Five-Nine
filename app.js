@@ -290,7 +290,6 @@ function updateTurnOrderDisplay() {
 }
 
 function endGame() {
-    // 勝者を決定
     let maxScore = -Infinity;
     let winner = '';
     let tie = false;
@@ -300,20 +299,22 @@ function endGame() {
             maxScore = scores[player];
             winner = player;
             tie = false;
-        } else if (scores[player] === maxScore && scores[player] !== 0) {
+        } else if (scores[player] === maxScore) {
             tie = true;
         }
     });
 
     if (tie) {
-        alert(`ゲーム終了！ ${maxScore} ポイントで引き分けです。`);
+        alert(`Game over! It's a tie with ${maxScore} points.`);
     } else {
-        alert(`ゲーム終了！ 勝者: ${winner}、ポイント: ${maxScore}。`);
+        const multiplier = prompt(`Enter the points multiplier for the final result (e.g., 2 for double points):`, '1');
+        const finalScore = maxScore * parseInt(multiplier);
+        alert(`Game over! The winner is ${winner} with ${finalScore} points (multiplier: ${multiplier}).`);
     }
 
-    // ゲームをリセット
     resetGame();
 }
+
 
 function resetGame() {
     document.getElementById('setup').style.display = 'block';
@@ -395,3 +396,91 @@ function displayScoreHistory() {
 
 // ページ読み込み時にプレイヤー入力を初期化
 generatePlayerInputs();
+
+function handleFoul(foulType) {
+    // Save current state for undo functionality
+    saveAction({
+        type: 'foul',
+        foulType: foulType,
+        scoresSnapshot: { ...scores },
+        turnIndex: currentTurnIndex,
+    });
+
+    if (foulType === 'scratch') {
+        alert("Scratch! Move the cue ball to the kitchen and proceed.");
+    } else if (foulType === 'kitchen') {
+        alert("Foul: Cue ball and object ball are both in the kitchen. Move them accordingly.");
+    } else if (foulType === 'outOfBounds') {
+        alert("Foul: Cue ball or object ball out of bounds. Move the object ball to the center or foot spot.");
+    }
+
+    // Pass turn to the next player
+    nextTurn();
+}
+
+// Event listeners for fouls
+document.getElementById('scratch').addEventListener('click', () => handleFoul('scratch'));
+document.getElementById('foulKitchen').addEventListener('click', () => handleFoul('kitchen'));
+document.getElementById('foulOutOfBounds').addEventListener('click', () => handleFoul('outOfBounds'));
+
+function recordCombinationShot(type) {
+    const player = currentPlayerSelect.value;
+    const ball = pottedBallSelect.value;
+    const pocket = pocketTypeSelect.value;
+    let points = 0;
+
+    if (type === 'combo' || type === 'cannon' || type === 'block') {
+        points = 1; // For simplicity, assign 1 point for valid combinations.
+        alert(`${type} shot!`);
+    }
+
+    saveAction({
+        type: 'combinationShot',
+        player: player,
+        shotType: type,
+        points: points,
+        scoresSnapshot: { ...scores },
+        ball: ball,
+        pocket: pocket
+    });
+
+    // Update score
+    scores[player] += points;
+    updateScoreBoard();
+    scoreHistory.push(`${player} scored ${points} points with a ${type} shot.`);
+}
+
+document.getElementById('comboShot').addEventListener('click', () => recordCombinationShot('combo'));
+document.getElementById('cannonShot').addEventListener('click', () => recordCombinationShot('cannon'));
+document.getElementById('blockShot').addEventListener('click', () => recordCombinationShot('block'));
+
+function formatScore(score) {
+    if (score === 1) return '/';
+    if (score === 2) return '×';
+    if (score === 3) return '× ×';
+    if (score === 4) return '× × ×';
+    if (score === 5) return '/ × ×';
+    return score;
+}
+
+function updateScoreBoard() {
+    scoreBoardDiv.innerHTML = '<h3>スコアボード</h3>';
+    const table = document.createElement('table');
+    const headerRow = document.createElement('tr');
+    players.forEach(player => {
+        const th = document.createElement('th');
+        th.textContent = player;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    const scoreRow = document.createElement('tr');
+    players.forEach(player => {
+        const td = document.createElement('td');
+        td.textContent = formatScore(scores[player]); // Use formatScore for tally display
+        scoreRow.appendChild(td);
+    });
+    table.appendChild(scoreRow);
+
+    scoreBoardDiv.appendChild(table);
+}
