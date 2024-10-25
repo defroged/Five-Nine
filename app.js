@@ -83,10 +83,11 @@ function updateRecordScoreButtonText() {
 
 function updateRecordScoreButtonAppearance() {
     const ballImage = document.getElementById('ballImage');
+    const ballToDisplay = selectedBall || pottedBallSelect.value;
 
-    if (selectedBall) {
+    if (ballToDisplay) {
         // Set the corresponding image for each ball
-        switch (selectedBall) {
+        switch (ballToDisplay) {
             case '3':
                 ballImage.src = '/assets/3ball.png';
                 break;
@@ -167,6 +168,7 @@ function startGame() {
     gameDiv.style.display = 'block';
 
     updateTurnOrderDisplay();
+	updateRecordScoreButtonAppearance();
 }
 
 function updatePottedBallOptions() {
