@@ -452,15 +452,6 @@ document.getElementById('comboShot').addEventListener('click', () => recordCombi
 document.getElementById('cannonShot').addEventListener('click', () => recordCombinationShot('cannon'));
 document.getElementById('blockShot').addEventListener('click', () => recordCombinationShot('block'));
 
-function formatScore(score) {
-    if (score === 1) return '/';
-    if (score === 2) return '×';
-    if (score === 3) return '× ×';
-    if (score === 4) return '× × ×';
-    if (score === 5) return '/ × ×';
-    return score;
-}
-
 function updateScoreBoard() {
     scoreBoardDiv.innerHTML = '<h3>スコアボード</h3>';
     const table = document.createElement('table');
@@ -475,10 +466,11 @@ function updateScoreBoard() {
     const scoreRow = document.createElement('tr');
     players.forEach(player => {
         const td = document.createElement('td');
-        td.textContent = formatScore(scores[player]); // Use formatScore for tally display
+        td.textContent = scores[player];  // Display simple numeric values
         scoreRow.appendChild(td);
     });
     table.appendChild(scoreRow);
 
     scoreBoardDiv.appendChild(table);
 }
+
