@@ -120,3 +120,23 @@ button {
     text-align: center;
 }
 
+/* Initially hide the buttons */
+.hidden {
+    display: none;
+}
+
+/* Style for pocket buttons */
+.pocket-btn {
+    border: none; /* Remove default button borders */
+    background-color: transparent; /* Remove background */
+    cursor: pointer; /* Show pointer cursor on hover */
+    padding: 0; /* Remove padding */
+}
+
+/* Style for the images inside the buttons */
+.pocket-img {
+    width: 50px;
+    height: 50px;
+}
+
+
