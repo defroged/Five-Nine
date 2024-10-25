@@ -408,9 +408,6 @@ function handleFoul(foulType) {
 
     if (foulType === 'scratch') {
         alert("Scratch! Move the cue ball to the kitchen and proceed.");
-    } else if (foulType === 'outOfBounds') {
-        alert("Foul: Cue ball or object ball out of bounds. Move the object ball to the center or foot spot.");
-    }
 
     // Pass turn to the next player
     nextTurn();
@@ -418,7 +415,6 @@ function handleFoul(foulType) {
 
 // Event listeners for fouls
 document.getElementById('scratch').addEventListener('click', () => handleFoul('scratch'));
-document.getElementById('foulOutOfBounds').addEventListener('click', () => handleFoul('outOfBounds'));
 
 
 function recordCombinationShot(type) {
