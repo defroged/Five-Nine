@@ -1,3 +1,6 @@
+
+
+
 // DOM要素への参照を取得
 const gameTypeSelect = document.getElementById('gameType');
 const numPlayersSelect = document.getElementById('numPlayers');
@@ -8,7 +11,6 @@ const scoreBoardDiv = document.getElementById('scoreBoard');
 const actionsDiv = document.getElementById('actions');
 const currentPlayerSelect = document.getElementById('currentPlayer');
 const pottedBallSelect = document.getElementById('pottedBall');
-const pocketTypeSelect = document.getElementById('pocketType');
 const recordScoreBtn = document.getElementById('recordScore');
 const scratchBtn = document.getElementById('scratch');
 const nextPlayerBtn = document.getElementById('nextPlayer');
@@ -19,10 +21,14 @@ const endGameBtn = document.getElementById('endGame');
 const historyModal = document.getElementById('historyModal');
 const closeModalBtn = document.querySelector('.close');
 const historyContentDiv = document.getElementById('historyContent');
+const cornerBtn = document.getElementById('cornerBtn');
+const sideBtn = document.getElementById('sideBtn');
+
 
 
 
 // ゲームの状態を保持するための変数
+let selectedBall = null;
 let players = [];
 let scores = {};
 let turnOrder = [];
@@ -35,7 +41,7 @@ let scoreHistory = []; // スコア履歴を見るため
 // イベントリスナー
 numPlayersSelect.addEventListener('change', generatePlayerInputs);
 startGameBtn.addEventListener('click', startGame);
-recordScoreBtn.addEventListener('click', recordScore);
+recordScoreBtn.addEventListener('click', selectBall);
 scratchBtn.addEventListener('click', recordScratch);
 nextPlayerBtn.addEventListener('click', nextPlayer);
 undoBtn.addEventListener('click', undoAction);
@@ -45,6 +51,30 @@ window.addEventListener('click', outsideClick);
 endGameBtn.addEventListener('click', endGame);
 pottedBallSelect.addEventListener('change', updateRecordScoreButtonAppearance);
 
+cornerBtn.addEventListener('click', function() {
+    recordScore('corner');
+});
+
+sideBtn.addEventListener('click', function() {
+    recordScore('side');
+});
+
+
+function selectBall() {
+    // Store the selected ball
+    selectedBall = pottedBallSelect.value;
+    
+    // Show that the ball is selected in the UI
+    recordScoreBtn.classList.add('selected');
+    
+    // Show the corner and side buttons
+    cornerBtn.style.display = 'inline-block';
+    sideBtn.style.display = 'inline-block';
+    
+    // Update the ball image
+    updateRecordScoreButtonAppearance();
+}
+
 
 function updateRecordScoreButtonText() {
     const selectedBall = pottedBallSelect.value;
@@ -52,28 +82,33 @@ function updateRecordScoreButtonText() {
 }
 
 function updateRecordScoreButtonAppearance() {
-    const selectedBall = pottedBallSelect.value;
     const ballImage = document.getElementById('ballImage');
 
-    // Set the corresponding image for each ball
-    switch (selectedBall) {
-        case '3':
-            ballImage.src = '/assets/3ball.png';
-            break;
-        case '5':
-            ballImage.src = '/assets/5ball.png';
-            break;
-        case '7':
-            ballImage.src = '/assets/7ball.png';
-            break;
-        case '9':
-            ballImage.src = '/assets/9ball.png';
-            break;
-        default:
-            ballImage.src = '';
-            break;
+    if (selectedBall) {
+        // Set the corresponding image for each ball
+        switch (selectedBall) {
+            case '3':
+                ballImage.src = '/assets/3ball.png';
+                break;
+            case '5':
+                ballImage.src = '/assets/5ball.png';
+                break;
+            case '7':
+                ballImage.src = '/assets/7ball.png';
+                break;
+            case '9':
+                ballImage.src = '/assets/9ball.png';
+                break;
+            default:
+                ballImage.src = '';
+                break;
+        }
+    } else {
+        // If no ball is selected, clear the image
+        ballImage.src = '';
     }
 }
+
 
 
 
@@ -178,24 +213,27 @@ function updateScoreBoard() {
     scoreBoardDiv.appendChild(table);
 }
 
-function recordScore() {
+function recordScore(pocket) {
     const player = currentPlayerSelect.value;
-    const ball = pottedBallSelect.value;
-    const pocket = pocketTypeSelect.value;
-
+    const ball = selectedBall; // Use the selectedBall variable
+    
+    if (!ball) {
+        alert('ボールが選択されていません。');
+        return;
+    }
+    
     let points = 0;
 
-    // ルールに基づいてポイント計算
+    // Points calculation based on the ball and pocket
     if (ball === '5') {
         points = pocket === 'corner' ? 1 : 2;
     } else if (ball === '9') {
         points = pocket === 'corner' ? 2 : 4;
     } else if (gameType === 'custom' && (ball === '3' || ball === '7')) {
-        // カスタムボールの場合のポイント設定
-        points = 1; // カスタムルールに基づいて調整
+        points = 1; // Adjust according to custom rules
     }
 
-    // 元に戻すための現在の状態を保存
+    // Save the current state for undo functionality
     saveAction({
         type: 'score',
         player: player,
@@ -205,10 +243,10 @@ function recordScore() {
         pocket: pocket
     });
 
-    // スコアを更新
+    // Update the score
     scores[player] += points;
 
-    // 3名以上のプレイヤーの場合、他のプレイヤーからポイントを引く
+    // If 3 or more players, subtract points from others
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -219,23 +257,30 @@ function recordScore() {
 
     updateScoreBoard();
 
-    // スコア履歴に追加
+    // Add to score history
     scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて、${points} ポイント獲得。`);
 
-    // 次のボールを自動的に選択
+    // Automatically select the next ball
     const options = Array.from(pottedBallSelect.options);
     const currentIndex = options.findIndex(option => option.value === ball);
 
-    // 次のインデックスを計算
+    // Calculate the next index
     let nextIndex = (currentIndex + 1) % options.length;
 
-    // 選択を次のボールに変更
-    // Change the selected ball to the next one
+    // Change selection to the next ball
     pottedBallSelect.selectedIndex = nextIndex;
 
-    // Update the button text to reflect the new selection
+    // Update the button appearance to reflect the new selection
     updateRecordScoreButtonAppearance();
+
+    // Reset the UI
+    cornerBtn.style.display = 'none';
+    sideBtn.style.display = 'none';
+    recordScoreBtn.classList.remove('selected');
+    selectedBall = null;
+	updateRecordScoreButtonAppearance();
 }
+
 
 function recordScratch() {
     const player = currentPlayerSelect.value;
