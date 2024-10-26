@@ -537,7 +537,17 @@ function undoAction() {
         case 'score':
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-            scoreHistory.pop();
+			scoreHistory.pop();
+			// Set selectedBall back to lastAction.ball
+selectedBall = lastAction.ball;
+
+// Set the pottedBallSelect value to lastAction.ball
+pottedBallSelect.value = lastAction.ball;
+
+// Update the ball image
+updateRecordScoreButtonAppearance();
+
+            
             break;
         case 'scratch':
             scores = lastAction.scoresSnapshot;
