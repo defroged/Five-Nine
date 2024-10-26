@@ -271,6 +271,7 @@ function updateRecordScoreButtonAppearance() {
 }
 
 
+
 function startGame() {
     // Get gameType from the select in the modal
     gameType = document.getElementById('gameType').value;
@@ -282,7 +283,6 @@ function startGame() {
     });
 
     // Collect scoring settings from the table
-    // We'll store them in a global object 'scoringSettings'
     scoringSettings = {};
 
     // For each player, get the scoring settings
@@ -296,6 +296,15 @@ function startGame() {
             });
         }
     });
+
+    // Now that scoringSettings is populated, update the potted ball options
+    updatePottedBallOptions();
+
+    // Check if there are any balls with points
+    if (pottedBallSelect.options.length === 0) {
+        alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
+        return;
+    }
 
     // Turn order
     turnOrder = [...players];
@@ -315,9 +324,6 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    // Update potted ball options
-    updatePottedBallOptions();
-
     // Hide the modal
     gameSettingsModal.style.display = 'none';
 
@@ -329,18 +335,40 @@ function startGame() {
 }
 
 
+
 function updatePottedBallOptions() {
     pottedBallSelect.innerHTML = '';
 
-    for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+    // Create a Set to store unique ball numbers that have non-zero points
+    const ballsWithPoints = new Set();
+
+    // Loop through all players' scoring settings
+    players.forEach(player => {
+        for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+            ['corner', 'side'].forEach(pocketType => {
+                const scoreKey = `${ballNumber}_${pocketType}`;
+                const points = scoringSettings[player][scoreKey];
+                if (points && points !== 0) {
+                    ballsWithPoints.add(ballNumber);
+                }
+            });
+        }
+    });
+
+    // Convert the Set to an array and sort it
+    const ballsArray = Array.from(ballsWithPoints).sort((a, b) => a - b);
+
+    // Populate the pottedBallSelect dropdown
+    ballsArray.forEach(ballNumber => {
         const option = document.createElement('option');
         option.value = ballNumber;
         option.textContent = ballNumber;
         pottedBallSelect.appendChild(option);
-    }
+    });
 
     updateRecordScoreButtonAppearance();
 }
+
 
 
 function updateScoreBoard() {
