@@ -1,7 +1,3 @@
-
-
-
-// DOM要素への参照を取得
 const gameTypeSelect = document.getElementById('gameType');
 const numPlayersSelect = document.getElementById('numPlayers');
 const playerNamesDiv = document.getElementById('playerNames');
@@ -23,11 +19,10 @@ const closeModalBtn = document.querySelector('.close');
 const historyContentDiv = document.getElementById('historyContent');
 const cornerBtn = document.getElementById('cornerBtn');
 const sideBtn = document.getElementById('sideBtn');
+const gameSettingsModal = document.getElementById('gameSettingsModal');
+const gameSettingsContent = document.getElementById('gameSettingsContent');
 
-
-
-
-// ゲームの状態を保持するための変数
+let scoringSettings = {};
 let selectedBall = null;
 let players = [];
 let scores = {};
@@ -35,10 +30,9 @@ let turnOrder = [];
 let currentTurnIndex = 0;
 let totalRacks = 0;
 let gameType = 'standard';
-let actionHistory = []; // 元に戻す機能のため
-let scoreHistory = []; // スコア履歴を見るため
+let actionHistory = []; 
+let scoreHistory = []; 
 
-// イベントリスナー
 numPlayersSelect.addEventListener('change', generatePlayerInputs);
 startGameBtn.addEventListener('click', startGame);
 recordScoreBtn.addEventListener('click', selectBall);
@@ -59,19 +53,208 @@ sideBtn.addEventListener('click', function() {
     recordScore('side');
 });
 
+function openGameSettingsModal() {
+    gameSettingsModal.style.display = 'block';
+    showSettingsPage1();
+}
+
+function showSettingsPage1() {
+    gameSettingsContent.innerHTML = '';
+
+    const heading = document.createElement('h3');
+    heading.textContent = 'プレイヤー設定';
+    gameSettingsContent.appendChild(heading);
+
+    // Number of players selection
+    const numPlayersLabel = document.createElement('label');
+    numPlayersLabel.textContent = 'プレイヤー人数:';
+    gameSettingsContent.appendChild(numPlayersLabel);
+
+    const numPlayersSelect = document.createElement('select');
+    numPlayersSelect.id = 'numPlayers';
+    for (let i = 1; i <= 4; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i + '名描き';
+        if (i === 2) option.selected = true; // default to 2 players
+        numPlayersSelect.appendChild(option);
+    }
+    gameSettingsContent.appendChild(numPlayersSelect);
+
+    // Player names inputs
+    const playerNamesDiv = document.createElement('div');
+    playerNamesDiv.id = 'playerNames';
+    gameSettingsContent.appendChild(playerNamesDiv);
+
+    // Generate initial player inputs
+    generatePlayerInputsSettings(numPlayersSelect.value);
+
+    // Update player inputs when number of players changes
+    numPlayersSelect.addEventListener('change', function() {
+        generatePlayerInputsSettings(numPlayersSelect.value);
+    });
+
+    // Next button to go to page 2
+    const nextButton = document.createElement('button');
+    nextButton.textContent = '次へ';
+    nextButton.addEventListener('click', showSettingsPage2);
+    gameSettingsContent.appendChild(nextButton);
+}
+
+function generatePlayerInputsSettings(numPlayers) {
+    const playerNamesDiv = document.getElementById('playerNames');
+    playerNamesDiv.innerHTML = '';
+
+    numPlayers = parseInt(numPlayers);
+    for (let i = 1; i <= numPlayers; i++) {
+        const label = document.createElement('label');
+        label.textContent = `プレイヤー ${i}:`;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = `player${i}`;
+        input.placeholder = `プレイヤー ${i}`;
+        playerNamesDiv.appendChild(label);
+        playerNamesDiv.appendChild(input);
+    }
+}
+
+function showSettingsPage2() {
+    // Collect player names from page 1
+    const numPlayers = parseInt(document.getElementById('numPlayers').value);
+    players = [];
+    for (let i = 1; i <= numPlayers; i++) {
+        const playerNameInput = document.getElementById(`player${i}`);
+        const playerName = playerNameInput.value.trim() || `プレイヤー ${i}`;
+        players.push(playerName);
+    }
+
+    gameSettingsContent.innerHTML = '';
+
+    const heading = document.createElement('h3');
+    heading.textContent = 'ゲームタイプとスコア設定';
+    gameSettingsContent.appendChild(heading);
+
+    // Game type selection
+    const gameTypeLabel = document.createElement('label');
+    gameTypeLabel.textContent = 'ゲームタイプを選択:';
+    gameSettingsContent.appendChild(gameTypeLabel);
+
+    const gameTypeSelect = document.createElement('select');
+    gameTypeSelect.id = 'gameType';
+    const optionStandard = document.createElement('option');
+    optionStandard.value = 'standard';
+    optionStandard.textContent = 'スタンダード(5-9)';
+    gameTypeSelect.appendChild(optionStandard);
+
+    const optionCustom = document.createElement('option');
+    optionCustom.value = 'custom';
+    optionCustom.textContent = 'カスタム';
+    gameTypeSelect.appendChild(optionCustom);
+
+    gameSettingsContent.appendChild(gameTypeSelect);
+
+    // Score settings table
+    const scoreTableDiv = document.createElement('div');
+    scoreTableDiv.id = 'scoreTableDiv';
+    gameSettingsContent.appendChild(scoreTableDiv);
+
+    // Generate initial score table
+    generateScoreSettingsTable(gameTypeSelect.value);
+
+    // Update score table when game type changes
+    gameTypeSelect.addEventListener('change', function() {
+        generateScoreSettingsTable(gameTypeSelect.value);
+    });
+
+    // Back button to go back to page 1
+    const backButton = document.createElement('button');
+    backButton.textContent = '戻る';
+    backButton.addEventListener('click', showSettingsPage1);
+    gameSettingsContent.appendChild(backButton);
+
+    // Start Game button
+    const startGameButton = document.createElement('button');
+    startGameButton.textContent = 'ゲーム開始';
+    startGameButton.addEventListener('click', startGame);
+    gameSettingsContent.appendChild(startGameButton);
+}
+
+function generateScoreSettingsTable(gameType) {
+    const scoreTableDiv = document.getElementById('scoreTableDiv');
+    scoreTableDiv.innerHTML = '';
+
+    const table = document.createElement('table');
+    table.id = 'scoreSettingsTable';
+
+    // Create header row
+    const headerRow = document.createElement('tr');
+
+    // First header cell: "プレイヤー名"
+    const playerNameHeader = document.createElement('th');
+    playerNameHeader.textContent = 'プレイヤー名';
+    headerRow.appendChild(playerNameHeader);
+
+    // Next headers: "1番コーナー", "1番サイド", ..., "9番サイド"
+    for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+        ['コーナー', 'サイド'].forEach(pocketType => {
+            const headerCell = document.createElement('th');
+            headerCell.textContent = `${ballNumber}番${pocketType}`;
+            headerRow.appendChild(headerCell);
+        });
+    }
+    table.appendChild(headerRow);
+
+    // For each player, create a row
+    players.forEach(player => {
+        const row = document.createElement('tr');
+
+        // Player name cell
+        const playerNameCell = document.createElement('td');
+        playerNameCell.textContent = player;
+        row.appendChild(playerNameCell);
+
+        // For each ball and pocket type, create an input cell
+        for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+            ['corner', 'side'].forEach(pocketType => {
+                const cell = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = 0;
+                input.id = `score_${player}_${ballNumber}_${pocketType}`;
+                input.style.width = '50px';
+                // Set default values based on game type
+                if (gameType === 'standard') {
+                    if (ballNumber === 5 && pocketType === 'corner') {
+                        input.value = 1;
+                    } else if (ballNumber === 5 && pocketType === 'side') {
+                        input.value = 2;
+                    } else if (ballNumber === 9 && pocketType === 'corner') {
+                        input.value = 2;
+                    } else if (ballNumber === 9 && pocketType === 'side') {
+                        input.value = 4;
+                    } else {
+                        input.value = 0;
+                    }
+                } else {
+                    input.value = 0;
+                }
+                cell.appendChild(input);
+                row.appendChild(cell);
+            });
+        }
+
+        table.appendChild(row);
+    });
+
+    scoreTableDiv.appendChild(table);
+}
+
 
 function selectBall() {
-    // Store the selected ball
     selectedBall = pottedBallSelect.value;
-    
-    // Show that the ball is selected in the UI
     recordScoreBtn.classList.add('selected');
-    
-    // Show the corner and side buttons
     cornerBtn.style.display = 'inline-block';
     sideBtn.style.display = 'inline-block';
-    
-    // Update the ball image
     updateRecordScoreButtonAppearance();
 }
 
@@ -86,72 +269,49 @@ function updateRecordScoreButtonAppearance() {
     const ballToDisplay = selectedBall || pottedBallSelect.value;
 
     if (ballToDisplay) {
-        // Set the corresponding image for each ball
-        switch (ballToDisplay) {
-            case '3':
-                ballImage.src = '/assets/3ball.png';
-                break;
-            case '5':
-                ballImage.src = '/assets/5ball.png';
-                break;
-            case '7':
-                ballImage.src = '/assets/7ball.png';
-                break;
-            case '9':
-                ballImage.src = '/assets/9ball.png';
-                break;
-            default:
-                ballImage.src = '';
-                break;
-        }
+        ballImage.src = `/assets/${ballToDisplay}ball.png`;
     } else {
-        // If no ball is selected, clear the image
         ballImage.src = '';
     }
 }
 
 
-
-
-function generatePlayerInputs() {
-    playerNamesDiv.innerHTML = '';
-    const numPlayers = parseInt(numPlayersSelect.value);
-    for (let i = 1; i <= numPlayers; i++) {
-        const label = document.createElement('label');
-        label.textContent = `プレイヤー ${i}:`;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = `player${i}`;
-        input.required = true;
-        playerNamesDiv.appendChild(label);
-        playerNamesDiv.appendChild(input);
-    }
-}
-
 function startGame() {
-    const numPlayers = parseInt(numPlayersSelect.value);
-    gameType = gameTypeSelect.value;
-    players = [];
+    // Get gameType from the select in the modal
+    gameType = document.getElementById('gameType').value;
+
+    // Initialize scores
     scores = {};
-    turnOrder = [];
+    players.forEach(player => {
+        scores[player] = 0;
+    });
+
+    // Collect scoring settings from the table
+    // We'll store them in a global object 'scoringSettings'
+    scoringSettings = {};
+
+    // For each player, get the scoring settings
+    players.forEach(player => {
+        scoringSettings[player] = {};
+        for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+            ['corner', 'side'].forEach(pocketType => {
+                const inputId = `score_${player}_${ballNumber}_${pocketType}`;
+                const scoreValue = parseInt(document.getElementById(inputId).value) || 0;
+                scoringSettings[player][`${ballNumber}_${pocketType}`] = scoreValue;
+            });
+        }
+    });
+
+    // Turn order
+    turnOrder = [...players];
     currentTurnIndex = 0;
     totalRacks = 0;
     actionHistory = [];
     scoreHistory = [];
 
-    for (let i = 1; i <= numPlayers; i++) {
-        const playerName = document.getElementById(`player${i}`).value || `プレイヤー ${i}`;
-        players.push(playerName);
-        scores[playerName] = 0;
-    }
-
-    // 順番設定
-    turnOrder = [...players];
-
-    // スコアボード設定
     updateScoreBoard();
 
-    // 現在のプレイヤー選択を設定
+    // Update current player select options
     currentPlayerSelect.innerHTML = '';
     players.forEach(player => {
         const option = document.createElement('option');
@@ -160,38 +320,33 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    // ポットされたボールオプションを設定
+    // Update potted ball options
     updatePottedBallOptions();
 
-    // ゲーム画面を表示、設定画面を非表示
-    document.getElementById('setup').style.display = 'none';
+    // Hide the modal
+    gameSettingsModal.style.display = 'none';
+
+    // Show the game interface
     gameDiv.style.display = 'block';
 
     updateTurnOrderDisplay();
-	updateRecordScoreButtonAppearance();
+    updateRecordScoreButtonAppearance();
 }
+
 
 function updatePottedBallOptions() {
-    // 既存オプションをクリア
     pottedBallSelect.innerHTML = '';
 
-    // スタンダードボール
-    let balls = ['5', '9'];
-
-    // カスタムゲームの場合、3番と7番を含む
-    if (gameType === 'custom') {
-        balls = ['3', '5', '7', '9'];
+    for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+        const option = document.createElement('option');
+        option.value = ballNumber;
+        option.textContent = ballNumber;
+        pottedBallSelect.appendChild(option);
     }
 
-    // ポットされたボールセレクトを設定
-    balls.forEach(ball => {
-        const option = document.createElement('option');
-        option.value = ball;
-        option.textContent = ball;
-        pottedBallSelect.appendChild(option);
-    });
-updateRecordScoreButtonAppearance();
+    updateRecordScoreButtonAppearance();
 }
+
 
 function updateScoreBoard() {
     scoreBoardDiv.innerHTML = '<h3>スコアボード</h3>';
@@ -217,25 +372,17 @@ function updateScoreBoard() {
 
 function recordScore(pocket) {
     const player = currentPlayerSelect.value;
-    const ball = selectedBall; // Use the selectedBall variable
-    
+    const ball = selectedBall; 
+
     if (!ball) {
         alert('ボールが選択されていません。');
         return;
     }
-    
-    let points = 0;
 
-    // Points calculation based on the ball and pocket
-    if (ball === '5') {
-        points = pocket === 'corner' ? 1 : 2;
-    } else if (ball === '9') {
-        points = pocket === 'corner' ? 2 : 4;
-    } else if (gameType === 'custom' && (ball === '3' || ball === '7')) {
-        points = 1; // Adjust according to custom rules
-    }
+    // Retrieve the points from scoringSettings
+    const scoreKey = `${ball}_${pocket}`;
+    let points = scoringSettings[player][scoreKey] || 0;
 
-    // Save the current state for undo functionality
     saveAction({
         type: 'score',
         player: player,
@@ -245,10 +392,8 @@ function recordScore(pocket) {
         pocket: pocket
     });
 
-    // Update the score
     scores[player] += points;
 
-    // If 3 or more players, subtract points from others
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -259,68 +404,56 @@ function recordScore(pocket) {
 
     updateScoreBoard();
 
-    // Add to score history
     scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて、${points} ポイント獲得。`);
 
-    // Automatically select the next ball
     const options = Array.from(pottedBallSelect.options);
     const currentIndex = options.findIndex(option => option.value === ball);
 
-    // Calculate the next index
     let nextIndex = (currentIndex + 1) % options.length;
 
-    // Change selection to the next ball
     pottedBallSelect.selectedIndex = nextIndex;
 
-    // Update the button appearance to reflect the new selection
     updateRecordScoreButtonAppearance();
 
-    // Reset the UI
     cornerBtn.style.display = 'none';
     sideBtn.style.display = 'none';
     recordScoreBtn.classList.remove('selected');
     selectedBall = null;
-	updateRecordScoreButtonAppearance();
+    updateRecordScoreButtonAppearance();
 }
+
 
 
 function recordScratch() {
     const player = currentPlayerSelect.value;
 
-    // 元に戻すための現在の状態を保存
     saveAction({
         type: 'scratch',
         player: player,
         scoresSnapshot: { ...scores }
     });
 
-    // スコア履歴に追加
     scoreHistory.push(`${player}はスクラッチしました。ポイントはありません。`);
 
-    // スクラッチ後、ターンを次のプレイヤーに渡す
     nextTurn();
 }
 
 function nextPlayer() {
-    // 元に戻すための現在の状態を保存
     saveAction({
         type: 'nextPlayer',
         previousTurnIndex: currentTurnIndex
     });
 
-    // 手動で次のプレイヤーに移行
     nextTurn();
 }
 
 function nextTurn() {
     totalRacks++;
 
-    // ルールに基づいて順番を更新
     if (players.length === 3 && totalRacks % 5 === 0) {
         turnOrder.reverse();
         alert('5ゲーム後、順番が逆になります。');
     } else if (players.length === 4 && totalRacks % 10 === 0) {
-        // じゃんけんで順番を決める（未実装）
         alert('10ゲーム後、じゃんけんで順番を決めてください。');
     }
 
@@ -332,12 +465,10 @@ function nextTurn() {
 
 function updateTurnOrderDisplay() {
     turnOrderDiv.innerHTML = `<p>現在の順番: ${turnOrder.join(' ➔ ')}</p>`;
-    // 現在のプレイヤーを強調表示
     turnOrderDiv.innerHTML += `<p><strong>${currentPlayerSelect.value} のターンです。</strong></p>`;
 }
 
 function endGame() {
-    // 勝者を決定
     let maxScore = -Infinity;
     let winner = '';
     let tie = false;
@@ -358,7 +489,6 @@ function endGame() {
         alert(`ゲーム終了！ 勝者: ${winner}、ポイント: ${maxScore}。`);
     }
 
-    // ゲームをリセット
     resetGame();
 }
 
@@ -383,25 +513,19 @@ function undoAction() {
 
     switch (lastAction.type) {
         case 'score':
-            // スコアを復元
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-            // スコア履歴から最後のエントリを削除
             scoreHistory.pop();
             break;
         case 'scratch':
-            // スコアを復元（変更があれば）
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-            // ターンの変更を元に戻す
             currentTurnIndex = (currentTurnIndex - 1 + players.length) % players.length;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
             updateTurnOrderDisplay();
-            // スコア履歴から最後のエントリを削除
             scoreHistory.pop();
             break;
         case 'nextPlayer':
-            // 前のターンインデックスを復元
             currentTurnIndex = lastAction.previousTurnIndex;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
             updateTurnOrderDisplay();
@@ -440,5 +564,9 @@ function displayScoreHistory() {
     historyContentDiv.appendChild(list);
 }
 
-// ページ読み込み時にプレイヤー入力を初期化
 generatePlayerInputs();
+
+// Open the game settings modal when the page loads
+window.onload = function() {
+    openGameSettingsModal();
+};

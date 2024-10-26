@@ -8,28 +8,6 @@
 <body>
     <h1>5.9 スコアボード</h1>
 
-    <div id="setup">
-        <h2>ゲーム設定</h2>
-        <label for="gameType">ゲームタイプを選択:</label>
-        <select id="gameType">
-            <option value="standard">スタンダード</option>
-            <option value="custom">カスタム (3番と7番を含む)</option>
-        </select>
-
-        <label for="numPlayers">プレイヤー人数:</label>
-        <select id="numPlayers">
-            <option value="2">2名描き</option>
-            <option value="3">3名描き</option>
-            <option value="4">4名描き</option>
-        </select>
-
-        <div id="playerNames">
-            <!-- プレイヤー名入力がここに生成されます -->
-        </div>
-
-        <button id="startGame">ゲーム開始</button>
-    </div>
-
     <div id="game" style="display:none;">
         <div id="scoreBoard">
             <!-- スコアボードがここに生成されます -->
@@ -81,6 +59,16 @@
             </div>
         </div>
     </div>
+
+<!-- ゲーム設定のモーダル -->
+<div id="gameSettingsModal" class="modal">
+    <div class="modal-content">
+        <h2>ゲーム設定</h2>
+        <div id="gameSettingsContent">
+            <!-- 設定ページのコンテンツがここに入ります -->
+        </div>
+    </div>
+</div>
 
     <script src="app.js"></script>
 </body>
