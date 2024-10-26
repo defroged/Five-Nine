@@ -1,7 +1,3 @@
-const gameTypeSelect = document.getElementById('gameType');
-const numPlayersSelect = document.getElementById('numPlayers');
-const playerNamesDiv = document.getElementById('playerNames');
-const startGameBtn = document.getElementById('startGame');
 const gameDiv = document.getElementById('game');
 const scoreBoardDiv = document.getElementById('scoreBoard');
 const actionsDiv = document.getElementById('actions');
@@ -33,8 +29,7 @@ let gameType = 'standard';
 let actionHistory = []; 
 let scoreHistory = []; 
 
-numPlayersSelect.addEventListener('change', generatePlayerInputs);
-startGameBtn.addEventListener('click', startGame);
+
 recordScoreBtn.addEventListener('click', selectBall);
 scratchBtn.addEventListener('click', recordScratch);
 nextPlayerBtn.addEventListener('click', nextPlayer);
@@ -496,7 +491,6 @@ function resetGame() {
     document.getElementById('setup').style.display = 'block';
     gameDiv.style.display = 'none';
     playerNamesDiv.innerHTML = '';
-    generatePlayerInputs();
 }
 
 function saveAction(action) {
@@ -563,8 +557,6 @@ function displayScoreHistory() {
     });
     historyContentDiv.appendChild(list);
 }
-
-generatePlayerInputs();
 
 // Open the game settings modal when the page loads
 window.onload = function() {
