@@ -229,10 +229,26 @@ function generateScoreSettingsTable(gameType) {
             });
         }
 
+        // Append the inputs container to the player container
         playerContainer.appendChild(inputsContainer);
+
+        // Make player section collapsible
+        playerHeader.style.cursor = 'pointer';
+        inputsContainer.style.display = 'none';
+
+        playerHeader.addEventListener('click', function() {
+            if (inputsContainer.style.display === 'none') {
+                inputsContainer.style.display = 'flex';
+            } else {
+                inputsContainer.style.display = 'none';
+            }
+        });
+
+        // Append the player container to the score table div
         scoreTableDiv.appendChild(playerContainer);
     });
 }
+
 
 
 
