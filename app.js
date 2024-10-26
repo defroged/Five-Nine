@@ -178,45 +178,30 @@ function generateScoreSettingsTable(gameType) {
     const scoreTableDiv = document.getElementById('scoreTableDiv');
     scoreTableDiv.innerHTML = '';
 
-    const table = document.createElement('table');
-    table.id = 'scoreSettingsTable';
-
-    // Create header row
-    const headerRow = document.createElement('tr');
-
-    // First header cell: "プレイヤー名"
-    const playerNameHeader = document.createElement('th');
-    playerNameHeader.textContent = 'プレイヤー名';
-    headerRow.appendChild(playerNameHeader);
-
-    // Next headers: "1番コーナー", "1番サイド", ..., "9番サイド"
-    for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
-        ['コーナー', 'サイド'].forEach(pocketType => {
-            const headerCell = document.createElement('th');
-            headerCell.textContent = `${ballNumber}番${pocketType}`;
-            headerRow.appendChild(headerCell);
-        });
-    }
-    table.appendChild(headerRow);
-
-    // For each player, create a row
     players.forEach(player => {
-        const row = document.createElement('tr');
+        // Create a container for each player
+        const playerContainer = document.createElement('div');
+        playerContainer.classList.add('player-container');
 
-        // Player name cell
-        const playerNameCell = document.createElement('td');
-        playerNameCell.textContent = player;
-        row.appendChild(playerNameCell);
+        // Create a header for the player name
+        const playerHeader = document.createElement('h4');
+        playerHeader.textContent = player;
+        playerContainer.appendChild(playerHeader);
 
-        // For each ball and pocket type, create an input cell
+        // Create a grid container for the inputs
+        const inputsContainer = document.createElement('div');
+        inputsContainer.classList.add('inputs-container');
+
         for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
             ['corner', 'side'].forEach(pocketType => {
-                const cell = document.createElement('td');
+                // Create a label and input for each ball and pocket type
+                const label = document.createElement('label');
+                label.textContent = `${ballNumber}番${pocketType === 'corner' ? 'C' : 'S'}`;
+
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.min = 0;
                 input.id = `score_${player}_${ballNumber}_${pocketType}`;
-                input.style.width = '50px';
                 // Set default values based on game type
                 if (gameType === 'standard') {
                     if (ballNumber === 5 && pocketType === 'corner') {
@@ -233,16 +218,22 @@ function generateScoreSettingsTable(gameType) {
                 } else {
                     input.value = 0;
                 }
-                cell.appendChild(input);
-                row.appendChild(cell);
+
+                // Append label and input to the inputs container
+                const inputGroup = document.createElement('div');
+                inputGroup.classList.add('input-group');
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+
+                inputsContainer.appendChild(inputGroup);
             });
         }
 
-        table.appendChild(row);
+        playerContainer.appendChild(inputsContainer);
+        scoreTableDiv.appendChild(playerContainer);
     });
-
-    scoreTableDiv.appendChild(table);
 }
+
 
 
 function selectBall() {

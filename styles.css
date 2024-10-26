@@ -135,4 +135,50 @@ button {
 }
 
 
+/* Styles for player container */
+.player-container {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Player name header */
+.player-container h4 {
+    margin-top: 0;
+}
+
+/* Container for inputs */
+.inputs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Individual input group */
+.input-group {
+    flex: 1 1 calc(50% - 10px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Label styling */
+.input-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* Input field styling */
+.input-group input {
+    padding: 5px;
+    font-size: 16px;
+}
+
+/* Modal content adjustments */
+.modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+
 
