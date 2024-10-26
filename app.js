@@ -125,9 +125,6 @@ function showSettingsPage2() {
 
     gameSettingsContent.innerHTML = '';
 
-    const heading = document.createElement('h3');
-    heading.textContent = 'ゲームタイプとスコア設定';
-    gameSettingsContent.appendChild(heading);
 
     // Game type selection
     const gameTypeLabel = document.createElement('label');
