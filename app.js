@@ -279,9 +279,11 @@ function startGame() {
             });
         }
     });
-
-    // --- Remove the original call to updatePottedBallOptions() here ---
-    // updatePottedBallOptions();
+	
+	console.log("scoringSettings after building:", JSON.stringify(scoringSettings, null, 2));
+console.log("currentPlayerSelect.value:", currentPlayerSelect.value);
+ console.log("scoringSettings[currentPlayerSelect.value]:",
+   scoringSettings[currentPlayerSelect.value]);
 
     if (pottedBallSelect.options.length === 0) {
         alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
