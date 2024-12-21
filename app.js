@@ -395,17 +395,17 @@ function recordScore(pocket, wasComboShot = false) {
     // Save action for undo
     saveAction({
         type: 'score',
-        player: player,
-        points: points,
+        player,
+        points,
         scoresSnapshot: { ...scores },
-        ball: ball,
-        pocket: pocket
+        ball,
+        pocket
     });
 
     // Add points for current player
     scores[player] += points;
 
-    // Deduct from others if 3+ players
+    // Deduct points from others if 3+ players
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -421,40 +421,31 @@ function recordScore(pocket, wasComboShot = false) {
         `${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`
     );
 
-    // Check if the potted ball is the 9-ball (frame-ending ball)
+    // If 9-ball is potted, increment the frame count
     if (parseInt(ball, 10) === 9) {
-        // Increment totalRacks (i.e., number of frames completed)
         totalRacks++;
 
-        // If playing with 3 players, reverse order every 5 completed frames
+        // Reverse order every 5 frames if 3 players
         if (players.length === 3 && totalRacks % 5 === 0) {
             turnOrder.reverse();
             alert('5ゲーム後、順番が逆になります。');
         }
-        // If playing with 4 players, special note every 10 completed frames
+        // Special note every 10 frames if 4 players
         else if (players.length === 4 && totalRacks % 10 === 0) {
             alert('10ゲーム後、じゃんけんで順番を決めてください。');
         }
 
-        // The player who potted the 9-ball continues in the next frame
+        // Make sure the 9-ball potter remains the currentPlayer
         currentPlayerSelect.value = player;
         currentTurnIndex = turnOrder.indexOf(player);
-
-        // Here you might optionally reset or remove the balls for the next frame, etc.
-        // (Depending on your desired logic — not shown here)
     } else {
-        // If it's NOT the 9-ball, we simply move to the next turn
+        // If not the 9-ball, only advance to the next ball if NOT a combo shot
         if (!wasComboShot) {
             const options = Array.from(pottedBallSelect.options);
-            const currentIndex = options.findIndex(
-                option => option.value === ball.toString()
-            );
+            const currentIndex = options.findIndex(opt => opt.value === ball.toString());
             let nextIndex = (currentIndex + 1) % options.length;
             pottedBallSelect.selectedIndex = nextIndex;
         }
-
-        // Go to next player's turn
-        nextTurn();
     }
 
     // Reset UI states
