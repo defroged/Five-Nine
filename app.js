@@ -449,6 +449,7 @@ function nextPlayer() {
 function nextTurn() {
     totalRacks++;
 
+    // Reverse turn order or alert, depending on game
     if (players.length === 3 && totalRacks % 5 === 0) {
         turnOrder.reverse();
         alert('5ゲーム後、順番が逆になります。');
@@ -456,11 +457,31 @@ function nextTurn() {
         alert('10ゲーム後、じゃんけんで順番を決めてください。');
     }
 
+    // Move to the next player
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
     currentPlayerSelect.value = turnOrder[currentTurnIndex];
 
-    // Update displayed balls based on the new current player
+    // Temporarily store whatever ball was selected before update
+    const ballBeforeUpdate = selectedBall;
+
+    // Update displayed balls for the new current player
     updatePottedBallOptions();
+
+    // If the previous ball was NOT potted, keep that same ball "alive" 
+    // and set it back to the dropdown (assuming it exists for the new player).
+    if (ballBeforeUpdate) {
+        const scoreKeyCorner = `${ballBeforeUpdate}_corner`;
+        const scoreKeySide = `${ballBeforeUpdate}_side`;
+        const cornerPoints = scoringSettings[currentPlayer][scoreKeyCorner] || 0;
+        const sidePoints = scoringSettings[currentPlayer][scoreKeySide] || 0;
+
+        // If this ball is valid for the new player, keep showing it
+        if (cornerPoints !== 0 || sidePoints !== 0) {
+            pottedBallSelect.value = ballBeforeUpdate;
+            selectedBall = ballBeforeUpdate;
+            updateRecordScoreButtonAppearance();
+        }
+    }
 
     updateTurnOrderDisplay();
 }
@@ -627,7 +648,7 @@ function recordComboCannonFrockScore(ballNumber) {
     // Set the selected ball to what was chosen in the Combo/Cannon/Frock modal
     selectedBall = ballNumber;
     
-    // Reflect that selected ball on the pottedBallSelect so the user can see it
+    // Reflect that selected ball in the pottedBallSelect so the user can see it
     pottedBallSelect.value = ballNumber;
     updateRecordScoreButtonAppearance();
 
