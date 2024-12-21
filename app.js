@@ -312,19 +312,18 @@ function startGame() {
 function updatePottedBallOptions() {
     pottedBallSelect.innerHTML = '';
 
+    const currentPlayer = currentPlayerSelect.value;
     const ballsWithPoints = new Set();
 
-    players.forEach(player => {
-        for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
-            ['corner', 'side'].forEach(pocketType => {
-                const scoreKey = `${ballNumber}_${pocketType}`;
-                const points = scoringSettings[player][scoreKey];
-                if (points && points !== 0) {
-                    ballsWithPoints.add(ballNumber);
-                }
-            });
-        }
-    });
+    for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+        ['corner', 'side'].forEach(pocketType => {
+            const scoreKey = `${ballNumber}_${pocketType}`;
+            const points = scoringSettings[currentPlayer][scoreKey];
+            if (points && points !== 0) {
+                ballsWithPoints.add(ballNumber);
+            }
+        });
+    }
 
     const ballsArray = Array.from(ballsWithPoints).sort((a, b) => a - b);
 
@@ -446,6 +445,9 @@ function nextTurn() {
 
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
     currentPlayerSelect.value = turnOrder[currentTurnIndex];
+
+    // Update displayed balls based on the new current player
+    updatePottedBallOptions();
 
     updateTurnOrderDisplay();
 }
