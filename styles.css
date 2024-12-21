@@ -25,7 +25,6 @@ select, input {
 
 button {
     margin-top: 10px;
-    /*! padding: 10px; */
     width: 100%;
 }
 
@@ -57,18 +56,17 @@ button {
     font-weight: bold;
 }
 
-/* Modal Styles */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 2; 
-    padding-top: 100px; 
+    display: none;
+    position: fixed;
+    z-index: 2;
+    padding-top: 100px;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.4); 
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
 }
 
 .modal-content {
@@ -88,54 +86,47 @@ button {
     cursor: pointer;
 }
 
-/* Base styles for the pool ball button */
 .pool-ball-button {
     border: none;
-    background: none; /* No background since we're using images */
+    background: none;
     cursor: pointer;
     padding: 0;
     margin: 10px;
     display: inline-block;
 }
 
-/* Style for the pool ball image inside the button */
 .pool-ball-button img {
-    width: 100px;  /* Set the size you want for the button */
-    height: 100px; /* Adjust based on the image's original dimensions */
+    width: 100px;
+    height: 100px;
 }
 
-/* Style for the endGame button */
 #endGame {
     width: 50px;
     height: 50px;
-    border-radius: 50%; /* Makes the button round */
+    border-radius: 50%;
     background-color: #ff3c3c;
     color: white;
     border: none;
     position: fixed;
-    top: 20px; /* Positioning at the top */
-    right: 20px; /* Positioning at the right */
+    top: 20px;
+    right: 20px;
     cursor: pointer;
     font-size: 14px;
     text-align: center;
 }
 
-/* Style for pocket buttons */
 .pocket-btn {
-    border: none; /* Remove default button borders */
-    background-color: transparent; /* Remove background */
-    cursor: pointer; /* Show pointer cursor on hover */
-    padding: 0; /* Remove padding */
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
 }
 
-/* Style for the images inside the buttons */
 .pocket-img {
     width: 100%;
     height: 100%;
 }
 
-
-/* Styles for player container */
 .player-container {
     margin-bottom: 20px;
     border: 1px solid #ccc;
@@ -143,42 +134,33 @@ button {
     border-radius: 5px;
 }
 
-/* Player name header */
 .player-container h4 {
     margin-top: 0;
 }
 
-/* Container for inputs */
 .inputs-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-/* Individual input group */
 .input-group {
     flex: 1 1 calc(50% - 10px);
     display: flex;
     flex-direction: column;
 }
 
-/* Label styling */
 .input-group label {
     font-size: 14px;
     margin-bottom: 5px;
 }
 
-/* Input field styling */
 .input-group input {
     padding: 5px;
     font-size: 16px;
 }
 
-/* Modal content adjustments */
 .modal-content {
     max-height: 80vh;
     overflow-y: auto;
 }
-
-
-

@@ -18,6 +18,11 @@ const sideBtn = document.getElementById('sideBtn');
 const gameSettingsModal = document.getElementById('gameSettingsModal');
 const gameSettingsContent = document.getElementById('gameSettingsContent');
 
+const comboCannonFrockBtn = document.getElementById('comboCannonFrockBtn');
+const comboCannonFrockModal = document.getElementById('comboCannonFrockModal');
+const closeComboModalBtn = document.getElementById('closeComboModal');
+const comboFrockBallsContainer = document.getElementById('comboFrockBallsContainer');
+
 let scoringSettings = {};
 let selectedBall = null;
 let players = [];
@@ -28,7 +33,6 @@ let totalRacks = 0;
 let gameType = 'standard';
 let actionHistory = []; 
 let scoreHistory = []; 
-
 
 recordScoreBtn.addEventListener('click', selectBall);
 scratchBtn.addEventListener('click', recordScratch);
@@ -48,6 +52,10 @@ sideBtn.addEventListener('click', function() {
     recordScore('side');
 });
 
+// コンビ・キャノン・フロック button event
+comboCannonFrockBtn.addEventListener('click', openComboCannonFrockModal);
+closeComboModalBtn.addEventListener('click', closeComboCannonFrockModal);
+
 function openGameSettingsModal() {
     gameSettingsModal.style.display = 'block';
     showSettingsPage1();
@@ -60,7 +68,6 @@ function showSettingsPage1() {
     heading.textContent = 'プレイヤー設定';
     gameSettingsContent.appendChild(heading);
 
-    // Number of players selection
     const numPlayersLabel = document.createElement('label');
     numPlayersLabel.textContent = 'プレイヤー人数:';
     gameSettingsContent.appendChild(numPlayersLabel);
@@ -71,25 +78,21 @@ function showSettingsPage1() {
         const option = document.createElement('option');
         option.value = i;
         option.textContent = i + '名描き';
-        if (i === 2) option.selected = true; // default to 2 players
+        if (i === 2) option.selected = true; 
         numPlayersSelect.appendChild(option);
     }
     gameSettingsContent.appendChild(numPlayersSelect);
 
-    // Player names inputs
     const playerNamesDiv = document.createElement('div');
     playerNamesDiv.id = 'playerNames';
     gameSettingsContent.appendChild(playerNamesDiv);
 
-    // Generate initial player inputs
     generatePlayerInputsSettings(numPlayersSelect.value);
 
-    // Update player inputs when number of players changes
     numPlayersSelect.addEventListener('change', function() {
         generatePlayerInputsSettings(numPlayersSelect.value);
     });
 
-    // Next button to go to page 2
     const nextButton = document.createElement('button');
     nextButton.textContent = '次へ';
     nextButton.addEventListener('click', showSettingsPage2);
@@ -114,7 +117,6 @@ function generatePlayerInputsSettings(numPlayers) {
 }
 
 function showSettingsPage2() {
-    // Collect player names from page 1
     const numPlayers = parseInt(document.getElementById('numPlayers').value);
     players = [];
     for (let i = 1; i <= numPlayers; i++) {
@@ -125,8 +127,6 @@ function showSettingsPage2() {
 
     gameSettingsContent.innerHTML = '';
 
-
-    // Game type selection
     const gameTypeLabel = document.createElement('label');
     gameTypeLabel.textContent = 'ゲームタイプを選択:';
     gameSettingsContent.appendChild(gameTypeLabel);
@@ -145,26 +145,21 @@ function showSettingsPage2() {
 
     gameSettingsContent.appendChild(gameTypeSelect);
 
-    // Score settings table
     const scoreTableDiv = document.createElement('div');
     scoreTableDiv.id = 'scoreTableDiv';
     gameSettingsContent.appendChild(scoreTableDiv);
 
-    // Generate initial score table
     generateScoreSettingsTable(gameTypeSelect.value);
 
-    // Update score table when game type changes
     gameTypeSelect.addEventListener('change', function() {
         generateScoreSettingsTable(gameTypeSelect.value);
     });
 
-    // Back button to go back to page 1
     const backButton = document.createElement('button');
     backButton.textContent = '戻る';
     backButton.addEventListener('click', showSettingsPage1);
     gameSettingsContent.appendChild(backButton);
 
-    // Start Game button
     const startGameButton = document.createElement('button');
     startGameButton.textContent = 'ゲーム開始';
     startGameButton.addEventListener('click', startGame);
@@ -176,22 +171,18 @@ function generateScoreSettingsTable(gameType) {
     scoreTableDiv.innerHTML = '';
 
     players.forEach(player => {
-        // Create a container for each player
         const playerContainer = document.createElement('div');
         playerContainer.classList.add('player-container');
 
-        // Create a header for the player name
         const playerHeader = document.createElement('h4');
         playerHeader.textContent = player;
         playerContainer.appendChild(playerHeader);
 
-        // Create a grid container for the inputs
         const inputsContainer = document.createElement('div');
         inputsContainer.classList.add('inputs-container');
 
         for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
             ['corner', 'side'].forEach(pocketType => {
-                // Create a label and input for each ball and pocket type
                 const label = document.createElement('label');
                 label.textContent = `${ballNumber}番${pocketType === 'corner' ? 'C' : 'S'}`;
 
@@ -199,7 +190,6 @@ function generateScoreSettingsTable(gameType) {
                 input.type = 'number';
                 input.min = 0;
                 input.id = `score_${player}_${ballNumber}_${pocketType}`;
-                // Set default values based on game type
                 if (gameType === 'standard') {
                     if (ballNumber === 5 && pocketType === 'corner') {
                         input.value = 1;
@@ -216,7 +206,6 @@ function generateScoreSettingsTable(gameType) {
                     input.value = 0;
                 }
 
-                // Append label and input to the inputs container
                 const inputGroup = document.createElement('div');
                 inputGroup.classList.add('input-group');
                 inputGroup.appendChild(label);
@@ -226,10 +215,8 @@ function generateScoreSettingsTable(gameType) {
             });
         }
 
-        // Append the inputs container to the player container
         playerContainer.appendChild(inputsContainer);
 
-        // Make player section collapsible
         playerHeader.style.cursor = 'pointer';
         inputsContainer.style.display = 'none';
 
@@ -241,13 +228,9 @@ function generateScoreSettingsTable(gameType) {
             }
         });
 
-        // Append the player container to the score table div
         scoreTableDiv.appendChild(playerContainer);
     });
 }
-
-
-
 
 function selectBall() {
     selectedBall = pottedBallSelect.value;
@@ -256,7 +239,6 @@ function selectBall() {
     sideBtn.style.display = 'inline-block';
     updateRecordScoreButtonAppearance();
 }
-
 
 function updateRecordScoreButtonText() {
     const selectedBall = pottedBallSelect.value;
@@ -274,22 +256,17 @@ function updateRecordScoreButtonAppearance() {
     }
 }
 
-
-
 function startGame() {
-    // Get gameType from the select in the modal
+
     gameType = document.getElementById('gameType').value;
 
-    // Initialize scores
     scores = {};
     players.forEach(player => {
         scores[player] = 0;
     });
 
-    // Collect scoring settings from the table
     scoringSettings = {};
 
-    // For each player, get the scoring settings
     players.forEach(player => {
         scoringSettings[player] = {};
         for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
@@ -301,16 +278,13 @@ function startGame() {
         }
     });
 
-    // Now that scoringSettings is populated, update the potted ball options
     updatePottedBallOptions();
 
-    // Check if there are any balls with points
     if (pottedBallSelect.options.length === 0) {
         alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
         return;
     }
 
-    // Turn order
     turnOrder = [...players];
     currentTurnIndex = 0;
     totalRacks = 0;
@@ -319,7 +293,6 @@ function startGame() {
 
     updateScoreBoard();
 
-    // Update current player select options
     currentPlayerSelect.innerHTML = '';
     players.forEach(player => {
         const option = document.createElement('option');
@@ -328,25 +301,19 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    // Hide the modal
     gameSettingsModal.style.display = 'none';
 
-    // Show the game interface
     gameDiv.style.display = 'block';
 
     updateTurnOrderDisplay();
     updateRecordScoreButtonAppearance();
 }
 
-
-
 function updatePottedBallOptions() {
     pottedBallSelect.innerHTML = '';
 
-    // Create a Set to store unique ball numbers that have non-zero points
     const ballsWithPoints = new Set();
 
-    // Loop through all players' scoring settings
     players.forEach(player => {
         for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
             ['corner', 'side'].forEach(pocketType => {
@@ -359,10 +326,8 @@ function updatePottedBallOptions() {
         }
     });
 
-    // Convert the Set to an array and sort it
     const ballsArray = Array.from(ballsWithPoints).sort((a, b) => a - b);
 
-    // Populate the pottedBallSelect dropdown
     ballsArray.forEach(ballNumber => {
         const option = document.createElement('option');
         option.value = ballNumber;
@@ -372,8 +337,6 @@ function updatePottedBallOptions() {
 
     updateRecordScoreButtonAppearance();
 }
-
-
 
 function updateScoreBoard() {
     scoreBoardDiv.innerHTML = '<h3>スコアボード</h3>';
@@ -406,7 +369,6 @@ function recordScore(pocket) {
         return;
     }
 
-    // Retrieve the points from scoringSettings
     const scoreKey = `${ball}_${pocket}`;
     let points = scoringSettings[player][scoreKey] || 0;
 
@@ -434,7 +396,7 @@ function recordScore(pocket) {
     scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて、${points} ポイント獲得。`);
 
     const options = Array.from(pottedBallSelect.options);
-    const currentIndex = options.findIndex(option => option.value === ball);
+    const currentIndex = options.findIndex(option => option.value === ball.toString());
 
     let nextIndex = (currentIndex + 1) % options.length;
 
@@ -448,8 +410,6 @@ function recordScore(pocket) {
     selectedBall = null;
     updateRecordScoreButtonAppearance();
 }
-
-
 
 function recordScratch() {
     const player = currentPlayerSelect.value;
@@ -541,22 +501,15 @@ function undoAction() {
         case 'score':
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-			scoreHistory.pop();
-			// Set selectedBall back to lastAction.ball
-selectedBall = lastAction.ball;
-
-// Set the pottedBallSelect value to lastAction.ball
-pottedBallSelect.value = lastAction.ball;
-
-// Update the ball image
-updateRecordScoreButtonAppearance();
-
-            
+            scoreHistory.pop();
+            selectedBall = lastAction.ball;
+            pottedBallSelect.value = lastAction.ball;
+            updateRecordScoreButtonAppearance();
             break;
         case 'scratch':
             scores = lastAction.scoresSnapshot;
             updateScoreBoard();
-            currentTurnIndex = (currentTurnIndex - 1 + players.length) % players.length;
+            currentTurnIndex = (lastAction.previousTurnIndex + players.length) % players.length;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
             updateTurnOrderDisplay();
             scoreHistory.pop();
@@ -565,6 +518,11 @@ updateRecordScoreButtonAppearance();
             currentTurnIndex = lastAction.previousTurnIndex;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
             updateTurnOrderDisplay();
+            break;
+        case 'comboCannonFrock':
+            scores = lastAction.scoresSnapshot;
+            updateScoreBoard();
+            scoreHistory.pop();
             break;
     }
 }
@@ -581,6 +539,8 @@ function closeHistoryModal() {
 function outsideClick(event) {
     if (event.target == historyModal) {
         historyModal.style.display = 'none';
+    } else if (event.target == comboCannonFrockModal) {
+        comboCannonFrockModal.style.display = 'none';
     }
 }
 
@@ -600,7 +560,104 @@ function displayScoreHistory() {
     historyContentDiv.appendChild(list);
 }
 
-// Open the game settings modal when the page loads
 window.onload = function() {
     openGameSettingsModal();
 };
+
+// --- コンビ・キャノン・フロック処理 ---
+function openComboCannonFrockModal() {
+    // Clear previous content
+    comboFrockBallsContainer.innerHTML = '';
+
+    // Determine current player
+    const currentPlayer = currentPlayerSelect.value;
+
+    // Gather all balls that have a nonzero point value for the current player
+    const availableBalls = new Set();
+    for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+        ['corner', 'side'].forEach(pocketType => {
+            const scoreKey = `${ballNumber}_${pocketType}`;
+            const points = scoringSettings[currentPlayer][scoreKey];
+            if (points && points !== 0) {
+                availableBalls.add(ballNumber);
+            }
+        });
+    }
+
+    // Create clickable ball images
+    availableBalls.forEach(ballNum => {
+        const btn = document.createElement('button');
+        btn.className = 'pool-ball-button';
+        const img = document.createElement('img');
+        img.src = `/assets/${ballNum}ball.png`;
+        img.alt = `Ball ${ballNum}`;
+        btn.appendChild(img);
+
+        btn.addEventListener('click', () => {
+            recordComboCannonFrockScore(ballNum);
+        });
+
+        comboFrockBallsContainer.appendChild(btn);
+    });
+
+    // Show modal
+    comboCannonFrockModal.style.display = 'block';
+}
+
+function closeComboCannonFrockModal() {
+    comboCannonFrockModal.style.display = 'none';
+}
+
+function recordComboCannonFrockScore(ballNumber) {
+    const currentPlayer = currentPlayerSelect.value;
+
+    // Sum all pocket variations for this ball for the current player
+    // Since we only add points, let's consider both corner & side
+    // We'll sum them up just like a "base score" for that ball for this player.
+    let totalPoints = 0;
+
+    ['corner', 'side'].forEach(pocketType => {
+        const scoreKey = `${ballNumber}_${pocketType}`;
+        const points = scoringSettings[currentPlayer][scoreKey] || 0;
+        totalPoints += points;
+    });
+
+    // If no points, just close
+    if (totalPoints === 0) {
+        closeComboCannonFrockModal();
+        return;
+    }
+
+    // Save action before modifying scores
+    saveAction({
+        type: 'comboCannonFrock',
+        scoresSnapshot: { ...scores },
+        player: currentPlayer,
+        ball: ballNumber,
+        points: totalPoints
+    });
+
+    // Add points to current player
+    scores[currentPlayer] += totalPoints;
+
+    // Deduct from others if 3 or more players
+    if (players.length >= 3) {
+        players.forEach(p => {
+            if (p !== currentPlayer) {
+                scores[p] -= totalPoints;
+            }
+        });
+    }
+
+    updateScoreBoard();
+
+    // Add to score history
+    scoreHistory.push(`${currentPlayer}はコンビ・キャノン・フロックで${ballNumber}番ボールの${totalPoints}ポイントを獲得（特殊得点）。`);
+
+    // Close modal and continue the game
+    closeComboCannonFrockModal();
+
+    // Do NOT change potted balls, do NOT consider this as a potted event
+    // The recordScore button image and next ball remain the same.
+    // The ball is considered "returned to the table" and is still alive.
+}

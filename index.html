@@ -10,62 +10,65 @@
 
     <div id="game" style="display:none;">
         <div id="scoreBoard">
-            <!-- スコアボードがここに生成されます -->
         </div>
 
         <div id="actions">
-            <label for="currentPlayer">現在のプレイヤー:</label>
-            <select id="currentPlayer">
-                <!-- プレイヤーオプションがここに生成されます -->
-            </select>
+    <label for="currentPlayer">現在のプレイヤー:</label>
+    <select id="currentPlayer">
+    </select>
 
-            <label for="pottedBall">ポットされたボール:</label>
-            <select id="pottedBall">
-                <!-- ボールのオプションがここに生成されます -->
-            </select>
+    <label for="pottedBall">ポットされたボール:</label>
+    <select id="pottedBall">
+    </select>
 
+    <button id="recordScore" class="pool-ball-button">
+        <img src="" alt="Pool Ball" id="ballImage">
+    </button>
+    <button id="cornerBtn" style="display: none;">
+        <img src="/assets/corner.png" alt="Corner Pocket" class="pocket-img">
+    </button>
+    <button id="sideBtn" style="display: none;">
+        <img src="/assets/center.png" alt="Side Pocket" class="pocket-img">
+    </button>
 
-            <button id="recordScore" class="pool-ball-button">
-    <img src="" alt="Pool Ball" id="ballImage">
-</button>
-<button id="cornerBtn" style="display: none;">
-    <img src="/assets/corner.png" alt="Corner Pocket" class="pocket-img">
-</button>
-<button id="sideBtn" style="display: none;">
-    <img src="/assets/center.png" alt="Side Pocket" class="pocket-img">
-</button>
+    <button id="scratch">スクラッチ</button>
+    <button id="nextPlayer">次のプレイヤー</button>
+    <button id="undo">取り消す</button>
+    <button id="viewHistory">スコア履歴を見る</button>
 
-
-            <button id="scratch">スクラッチ</button>
-            <button id="nextPlayer">次のプレイヤー</button>
-            <button id="undo">取り消す</button>
-            <button id="viewHistory">スコア履歴を見る</button>
-        </div>
+    <!-- Added コンビ・キャノン・フロック button below -->
+    <button id="comboCannonFrockBtn" class="pool-ball-button">コンビ・キャノン・フロック</button>
+</div>
 
         <div id="turnOrder">
-            <!-- 順番情報がここに表示されます -->
         </div>
 
         <button id="endGame">END</button>
     </div>
 
-    <!-- スコア履歴のモーダル -->
     <div id="historyModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>スコア履歴</h2>
             <div id="historyContent">
-                <!-- スコア履歴がここに表示されます -->
             </div>
         </div>
     </div>
 
-<!-- ゲーム設定のモーダル -->
 <div id="gameSettingsModal" class="modal">
     <div class="modal-content">
         <h2>ゲーム設定</h2>
         <div id="gameSettingsContent">
-            <!-- 設定ページのコンテンツがここに入ります -->
+        </div>
+    </div>
+</div>
+
+<div id="comboCannonFrockModal" class="modal">
+    <div class="modal-content">
+        <span id="closeComboModal" class="close">&times;</span>
+        <h2>コンビ・キャノン・フロック</h2>
+        <div id="comboFrockBallsContainer">
+            <!-- Ball images will be injected here -->
         </div>
     </div>
 </div>
