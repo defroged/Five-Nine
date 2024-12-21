@@ -392,7 +392,7 @@ function recordScore(pocket, wasComboShot = false) {
     const scoreKey = `${ball}_${pocket}`;
     let points = scoringSettings[player][scoreKey] || 0;
 
-    // Save a snapshot of the scores before updating
+    // Save action for undo
     saveAction({
         type: 'score',
         player: player,
@@ -402,10 +402,10 @@ function recordScore(pocket, wasComboShot = false) {
         pocket: pocket
     });
 
-    // Add points
+    // Add points for current player
     scores[player] += points;
 
-    // Deduct if 3 or more players
+    // Deduct from others if 3+ players
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -416,11 +416,10 @@ function recordScore(pocket, wasComboShot = false) {
 
     updateScoreBoard();
 
-    // Add to score history
-    scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて、${points} ポイント獲得。`);
+    // Log into score history
+    scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`);
 
-    // If NOT a combo shot, move to next ball in the dropdown
-    // But if this WAS a combo shot, the ball is “returned to the table,” so skip this part
+    // Only advance to the next ball if NOT a combo shot
     if (!wasComboShot) {
         const options = Array.from(pottedBallSelect.options);
         const currentIndex = options.findIndex(option => option.value === ball.toString());
@@ -428,15 +427,12 @@ function recordScore(pocket, wasComboShot = false) {
         pottedBallSelect.selectedIndex = nextIndex;
     }
 
-    // Update images
-    updateRecordScoreButtonAppearance();
-
-    // Hide corner/side buttons, unselect the main recordScoreBtn
+    // Reset UI states
     cornerBtn.style.display = 'none';
     sideBtn.style.display = 'none';
     recordScoreBtn.classList.remove('selected');
 
-    // Clear the selected ball
+    // Clear out the selected ball
     selectedBall = null;
     updateRecordScoreButtonAppearance();
 }
@@ -467,7 +463,6 @@ function nextPlayer() {
 function nextTurn() {
     totalRacks++;
 
-    // Reverse turn order or alert, depending on game
     if (players.length === 3 && totalRacks % 5 === 0) {
         turnOrder.reverse();
         alert('5ゲーム後、順番が逆になります。');
@@ -475,25 +470,20 @@ function nextTurn() {
         alert('10ゲーム後、じゃんけんで順番を決めてください。');
     }
 
-    // Move to the next player
+    // Go to next player's index
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
     currentPlayerSelect.value = turnOrder[currentTurnIndex];
 
-    // Temporarily store whatever ball was selected before update
+    // Save the currently "active" ball
     const ballBeforeUpdate = selectedBall;
 
-    // Update displayed balls for the new current player
+    // Refresh the dropdown for the new player
     updatePottedBallOptions();
 
-    // If the previous ball was NOT potted, keep that same ball "alive" 
-    // and set it back to the dropdown (assuming it exists for the new player).
+    // If the ball was "alive," keep it selected in the dropdown
     if (ballBeforeUpdate) {
-        const scoreKeyCorner = `${ballBeforeUpdate}_corner`;
-        const scoreKeySide = `${ballBeforeUpdate}_side`;
-        const cornerPoints = scoringSettings[currentPlayer][scoreKeyCorner] || 0;
-        const sidePoints = scoringSettings[currentPlayer][scoreKeySide] || 0;
-
-        // If this ball is valid for the new player, keep showing it
+        const cornerPoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_corner`] || 0;
+        const sidePoints   = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_side`]   || 0;
         if (cornerPoints !== 0 || sidePoints !== 0) {
             pottedBallSelect.value = ballBeforeUpdate;
             selectedBall = ballBeforeUpdate;
