@@ -258,7 +258,6 @@ function updateRecordScoreButtonAppearance() {
 }
 
 function startGame() {
-	console.log("Entering startGame(), let's see players & default values…");
 
     gameType = document.getElementById('gameType').value;
 
@@ -279,16 +278,9 @@ function startGame() {
             });
         }
     });
-	
-	console.log("scoringSettings after building:", JSON.stringify(scoringSettings, null, 2));
-console.log("currentPlayerSelect.value:", currentPlayerSelect.value);
- console.log("scoringSettings[currentPlayerSelect.value]:",
-   scoringSettings[currentPlayerSelect.value]);
 
-    if (pottedBallSelect.options.length === 0) {
-        alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
-        return;
-    }
+    console.log("Entering startGame(), let's see players & default values…");
+    console.log("scoringSettings after building:", JSON.stringify(scoringSettings, null, 2));
 
     turnOrder = [...players];
     currentTurnIndex = 0;
@@ -298,7 +290,7 @@ console.log("currentPlayerSelect.value:", currentPlayerSelect.value);
 
     updateScoreBoard();
 
-    // Populate currentPlayerSelect
+    // 1) Clear out and re-populate currentPlayerSelect
     currentPlayerSelect.innerHTML = '';
     players.forEach(player => {
         const option = document.createElement('option');
@@ -307,11 +299,19 @@ console.log("currentPlayerSelect.value:", currentPlayerSelect.value);
         currentPlayerSelect.appendChild(option);
     });
 
-    // Default to first player, so currentPlayerSelect.value is never empty
+    // 2) Explicitly set the select’s value to the first player
     currentPlayerSelect.value = players[0];
+    console.log("currentPlayerSelect.value now:", currentPlayerSelect.value);
 
-    // --- Now call updatePottedBallOptions() so it picks up a valid currentPlayer ---
+    // 3) Now call updatePottedBallOptions() with the valid current player
     updatePottedBallOptions();
+
+    // 4) If STILL no scorable balls, bail out
+    if (pottedBallSelect.options.length === 0) {
+        console.log("No scorable balls for player:", currentPlayerSelect.value);
+        alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
+        return;
+    }
 
     gameSettingsModal.style.display = 'none';
     gameDiv.style.display = 'block';
@@ -319,6 +319,7 @@ console.log("currentPlayerSelect.value:", currentPlayerSelect.value);
     updateTurnOrderDisplay();
     updateRecordScoreButtonAppearance();
 }
+
 
 
 function updatePottedBallOptions() {
