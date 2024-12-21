@@ -624,55 +624,19 @@ function closeComboCannonFrockModal() {
 }
 
 function recordComboCannonFrockScore(ballNumber) {
-    const currentPlayer = currentPlayerSelect.value;
+    // Set the selected ball to what was chosen in the Combo/Cannon/Frock modal
+    selectedBall = ballNumber;
+    
+    // Reflect that selected ball on the pottedBallSelect so the user can see it
+    pottedBallSelect.value = ballNumber;
+    updateRecordScoreButtonAppearance();
 
-    // Sum all pocket variations for this ball for the current player
-    // Since we only add points, let's consider both corner & side
-    // We'll sum them up just like a "base score" for that ball for this player.
-    let totalPoints = 0;
+    // Show corner and side buttons, just like when a regular ball is selected
+    cornerBtn.style.display = 'inline-block';
+    sideBtn.style.display = 'inline-block';
+    recordScoreBtn.classList.add('selected');
 
-    ['corner', 'side'].forEach(pocketType => {
-        const scoreKey = `${ballNumber}_${pocketType}`;
-        const points = scoringSettings[currentPlayer][scoreKey] || 0;
-        totalPoints += points;
-    });
-
-    // If no points, just close
-    if (totalPoints === 0) {
-        closeComboCannonFrockModal();
-        return;
-    }
-
-    // Save action before modifying scores
-    saveAction({
-        type: 'comboCannonFrock',
-        scoresSnapshot: { ...scores },
-        player: currentPlayer,
-        ball: ballNumber,
-        points: totalPoints
-    });
-
-    // Add points to current player
-    scores[currentPlayer] += totalPoints;
-
-    // Deduct from others if 3 or more players
-    if (players.length >= 3) {
-        players.forEach(p => {
-            if (p !== currentPlayer) {
-                scores[p] -= totalPoints;
-            }
-        });
-    }
-
-    updateScoreBoard();
-
-    // Add to score history
-    scoreHistory.push(`${currentPlayer}はコンビ・キャノン・フロックで${ballNumber}番ボールの${totalPoints}ポイントを獲得（特殊得点）。`);
-
-    // Close modal and continue the game
+    // Finally, close the modal
     closeComboCannonFrockModal();
-
-    // Do NOT change potted balls, do NOT consider this as a potted event
-    // The recordScore button image and next ball remain the same.
-    // The ball is considered "returned to the table" and is still alive.
 }
+
