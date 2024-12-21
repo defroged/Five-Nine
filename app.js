@@ -136,6 +136,7 @@ function showSettingsPage2() {
     const optionStandard = document.createElement('option');
     optionStandard.value = 'standard';
     optionStandard.textContent = 'スタンダード(5-9)';
+	optionStandard.selected = true;
     gameTypeSelect.appendChild(optionStandard);
 
     const optionCustom = document.createElement('option');
