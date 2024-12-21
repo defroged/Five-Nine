@@ -44,12 +44,20 @@ window.addEventListener('click', outsideClick);
 endGameBtn.addEventListener('click', endGame);
 pottedBallSelect.addEventListener('change', updateRecordScoreButtonAppearance);
 
+// NEW GLOBAL FLAG to detect if we’re in the middle of a combo shot
+let isComboShotActive = false;
+
+// Modify corner/side button event listeners to pass isComboShotActive
 cornerBtn.addEventListener('click', function() {
-    recordScore('corner');
+    recordScore('corner', isComboShotActive);
+    // Reset the flag after scoring
+    isComboShotActive = false;
 });
 
 sideBtn.addEventListener('click', function() {
-    recordScore('side');
+    recordScore('side', isComboShotActive);
+    // Reset the flag after scoring
+    isComboShotActive = false;
 });
 
 // コンビ・キャノン・フロック button event
@@ -372,7 +380,7 @@ function updateScoreBoard() {
     scoreBoardDiv.appendChild(table);
 }
 
-function recordScore(pocket) {
+function recordScore(pocket, wasComboShot = false) {
     const player = currentPlayerSelect.value;
     const ball = selectedBall; 
 
@@ -384,6 +392,7 @@ function recordScore(pocket) {
     const scoreKey = `${ball}_${pocket}`;
     let points = scoringSettings[player][scoreKey] || 0;
 
+    // Save a snapshot of the scores before updating
     saveAction({
         type: 'score',
         player: player,
@@ -393,8 +402,10 @@ function recordScore(pocket) {
         pocket: pocket
     });
 
+    // Add points
     scores[player] += points;
 
+    // Deduct if 3 or more players
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -405,20 +416,27 @@ function recordScore(pocket) {
 
     updateScoreBoard();
 
+    // Add to score history
     scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}ポケットに入れて、${points} ポイント獲得。`);
 
-    const options = Array.from(pottedBallSelect.options);
-    const currentIndex = options.findIndex(option => option.value === ball.toString());
+    // If NOT a combo shot, move to next ball in the dropdown
+    // But if this WAS a combo shot, the ball is “returned to the table,” so skip this part
+    if (!wasComboShot) {
+        const options = Array.from(pottedBallSelect.options);
+        const currentIndex = options.findIndex(option => option.value === ball.toString());
+        let nextIndex = (currentIndex + 1) % options.length;
+        pottedBallSelect.selectedIndex = nextIndex;
+    }
 
-    let nextIndex = (currentIndex + 1) % options.length;
-
-    pottedBallSelect.selectedIndex = nextIndex;
-
+    // Update images
     updateRecordScoreButtonAppearance();
 
+    // Hide corner/side buttons, unselect the main recordScoreBtn
     cornerBtn.style.display = 'none';
     sideBtn.style.display = 'none';
     recordScoreBtn.classList.remove('selected');
+
+    // Clear the selected ball
     selectedBall = null;
     updateRecordScoreButtonAppearance();
 }
@@ -645,9 +663,11 @@ function closeComboCannonFrockModal() {
 }
 
 function recordComboCannonFrockScore(ballNumber) {
+    // We are now in a combo shot
+    isComboShotActive = true;
+
     // Set the selected ball to what was chosen in the Combo/Cannon/Frock modal
     selectedBall = ballNumber;
-    
     // Reflect that selected ball in the pottedBallSelect so the user can see it
     pottedBallSelect.value = ballNumber;
     updateRecordScoreButtonAppearance();
@@ -660,4 +680,5 @@ function recordComboCannonFrockScore(ballNumber) {
     // Finally, close the modal
     closeComboCannonFrockModal();
 }
+
 
