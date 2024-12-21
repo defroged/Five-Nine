@@ -258,6 +258,7 @@ function updateRecordScoreButtonAppearance() {
 }
 
 function startGame() {
+	console.log("Entering startGame(), let's see players & default values…");
 
     gameType = document.getElementById('gameType').value;
 
