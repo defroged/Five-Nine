@@ -278,7 +278,8 @@ function startGame() {
         }
     });
 
-    updatePottedBallOptions();
+    // --- Remove the original call to updatePottedBallOptions() here ---
+    // updatePottedBallOptions();
 
     if (pottedBallSelect.options.length === 0) {
         alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
@@ -293,6 +294,7 @@ function startGame() {
 
     updateScoreBoard();
 
+    // Populate currentPlayerSelect
     currentPlayerSelect.innerHTML = '';
     players.forEach(player => {
         const option = document.createElement('option');
@@ -301,13 +303,19 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    gameSettingsModal.style.display = 'none';
+    // Default to first player, so currentPlayerSelect.value is never empty
+    currentPlayerSelect.value = players[0];
 
+    // --- Now call updatePottedBallOptions() so it picks up a valid currentPlayer ---
+    updatePottedBallOptions();
+
+    gameSettingsModal.style.display = 'none';
     gameDiv.style.display = 'block';
 
     updateTurnOrderDisplay();
     updateRecordScoreButtonAppearance();
 }
+
 
 function updatePottedBallOptions() {
     pottedBallSelect.innerHTML = '';
