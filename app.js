@@ -417,14 +417,44 @@ function recordScore(pocket, wasComboShot = false) {
     updateScoreBoard();
 
     // Log into score history
-    scoreHistory.push(`${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`);
+    scoreHistory.push(
+        `${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`
+    );
 
-    // Only advance to the next ball if NOT a combo shot
-    if (!wasComboShot) {
-        const options = Array.from(pottedBallSelect.options);
-        const currentIndex = options.findIndex(option => option.value === ball.toString());
-        let nextIndex = (currentIndex + 1) % options.length;
-        pottedBallSelect.selectedIndex = nextIndex;
+    // Check if the potted ball is the 9-ball (frame-ending ball)
+    if (parseInt(ball, 10) === 9) {
+        // Increment totalRacks (i.e., number of frames completed)
+        totalRacks++;
+
+        // If playing with 3 players, reverse order every 5 completed frames
+        if (players.length === 3 && totalRacks % 5 === 0) {
+            turnOrder.reverse();
+            alert('5ゲーム後、順番が逆になります。');
+        }
+        // If playing with 4 players, special note every 10 completed frames
+        else if (players.length === 4 && totalRacks % 10 === 0) {
+            alert('10ゲーム後、じゃんけんで順番を決めてください。');
+        }
+
+        // The player who potted the 9-ball continues in the next frame
+        currentPlayerSelect.value = player;
+        currentTurnIndex = turnOrder.indexOf(player);
+
+        // Here you might optionally reset or remove the balls for the next frame, etc.
+        // (Depending on your desired logic — not shown here)
+    } else {
+        // If it's NOT the 9-ball, we simply move to the next turn
+        if (!wasComboShot) {
+            const options = Array.from(pottedBallSelect.options);
+            const currentIndex = options.findIndex(
+                option => option.value === ball.toString()
+            );
+            let nextIndex = (currentIndex + 1) % options.length;
+            pottedBallSelect.selectedIndex = nextIndex;
+        }
+
+        // Go to next player's turn
+        nextTurn();
     }
 
     // Reset UI states
@@ -461,15 +491,6 @@ function nextPlayer() {
 }
 
 function nextTurn() {
-    totalRacks++;
-
-    if (players.length === 3 && totalRacks % 5 === 0) {
-        turnOrder.reverse();
-        alert('5ゲーム後、順番が逆になります。');
-    } else if (players.length === 4 && totalRacks % 10 === 0) {
-        alert('10ゲーム後、じゃんけんで順番を決めてください。');
-    }
-
     // Go to next player's index
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
     currentPlayerSelect.value = turnOrder[currentTurnIndex];

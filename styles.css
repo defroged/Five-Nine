@@ -164,3 +164,7 @@ button {
     max-height: 80vh;
     overflow-y: auto;
 }
+
+#scratch {
+    display: none !important;
+}
