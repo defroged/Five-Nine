@@ -4,7 +4,6 @@ const actionsDiv = document.getElementById('actions');
 const currentPlayerSelect = document.getElementById('currentPlayer');
 const pottedBallSelect = document.getElementById('pottedBall');
 const recordScoreBtn = document.getElementById('recordScore');
-// const scratchBtn = document.getElementById('scratch'); // Removed
 const nextPlayerBtn = document.getElementById('nextPlayer');
 const undoBtn = document.getElementById('undo');
 const viewHistoryBtn = document.getElementById('viewHistory');
@@ -31,13 +30,12 @@ let turnOrder = [];
 let currentTurnIndex = 0;
 let totalRacks = 0;
 let gameType = 'standard';
-let actionHistory = []; 
-let scoreHistory = []; 
-let currentRack = 1; // Initialize the current rack number
-let rackScores = {};  // Initialize rackScores globally
+let actionHistory = [];
+let scoreHistory = [];
+let currentRack = 1;
+let rackScores = {};
 
 recordScoreBtn.addEventListener('click', selectBall);
-// scratchBtn.addEventListener('click', recordScratch); // Removed
 nextPlayerBtn.addEventListener('click', nextPlayer);
 undoBtn.addEventListener('click', undoAction);
 viewHistoryBtn.addEventListener('click', openHistoryModal);
@@ -46,23 +44,18 @@ window.addEventListener('click', outsideClick);
 endGameBtn.addEventListener('click', endGame);
 pottedBallSelect.addEventListener('change', updateRecordScoreButtonAppearance);
 
-// NEW GLOBAL FLAG to detect if we’re in the middle of a combo shot
 let isComboShotActive = false;
 
-// Modify corner/side button event listeners to pass isComboShotActive
 cornerBtn.addEventListener('click', function() {
     recordScore('corner', isComboShotActive);
-    // Reset the flag after scoring
     isComboShotActive = false;
 });
 
 sideBtn.addEventListener('click', function() {
     recordScore('side', isComboShotActive);
-    // Reset the flag after scoring
     isComboShotActive = false;
 });
 
-// Combo/Cannon/Frock button event
 comboCannonFrockBtn.addEventListener('click', openComboCannonFrockModal);
 closeComboModalBtn.addEventListener('click', closeComboCannonFrockModal);
 
@@ -88,7 +81,7 @@ function showSettingsPage1() {
         const option = document.createElement('option');
         option.value = i;
         option.textContent = i + (i === 1 ? ' player' : ' players');
-        if (i === 2) option.selected = true; 
+        if (i === 2) option.selected = true;
         numPlayersSelect.appendChild(option);
     }
     gameSettingsContent.appendChild(numPlayersSelect);
@@ -296,20 +289,18 @@ function startGame() {
     totalRacks = 0;
     actionHistory = [];
     scoreHistory = [];
-    currentRack = 1; // Reset rack number
-    rackScores = {}; // Reset rack scores
+    currentRack = 1;
+    rackScores = {};
 
-    // Initialize rackScores for each player
     players.forEach(player => {
         rackScores[player] = [];
-        for(let i = 0; i < 10; i++) {
+        for (let i = 0; i < 10; i++) {
             rackScores[player].push(0);
         }
     });
 
     updateScoreBoard();
 
-    // 1) Clear out and re-populate currentPlayerSelect
     currentPlayerSelect.innerHTML = '';
     players.forEach(player => {
         const option = document.createElement('option');
@@ -318,87 +309,11 @@ function startGame() {
         currentPlayerSelect.appendChild(option);
     });
 
-    // 2) Explicitly set the select’s value to the first player
     currentPlayerSelect.value = players[0];
     console.log("currentPlayerSelect.value now:", currentPlayerSelect.value);
 
-    // 3) Now call updatePottedBallOptions() with the valid current player
     updatePottedBallOptions();
 
-    // 4) If STILL no scorable balls, bail out
-    if (pottedBallSelect.options.length === 0) {
-        console.log("No scorable balls for player:", currentPlayerSelect.value);
-        alert('There are no balls with points set. Game cannot start.');
-        return;
-    }
-
-    gameSettingsModal.style.display = 'none';
-    gameDiv.style.display = 'block';
-
-    updateTurnOrderDisplay();
-    updateRecordScoreButtonAppearance();
-}
-
-// With this full corrected version ...
-function startGame() {
-    gameType = document.getElementById('gameType').value;
-
-    scores = {};
-    players.forEach(player => {
-        scores[player] = 0;
-    });
-
-    scoringSettings = {};
-
-    players.forEach(player => {
-        scoringSettings[player] = {};
-        for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
-            ['corner', 'side'].forEach(pocketType => {
-                const inputId = `score_${player}_${ballNumber}_${pocketType}`;
-                const scoreValue = parseInt(document.getElementById(inputId).value) || 0;
-                scoringSettings[player][`${ballNumber}_${pocketType}`] = scoreValue;
-            });
-        }
-    });
-
-    console.log("Entering startGame(), let's see players & default values…");
-    console.log("scoringSettings after building:", JSON.stringify(scoringSettings, null, 2));
-
-    turnOrder = [...players];
-    currentTurnIndex = 0;
-    totalRacks = 0;
-    actionHistory = [];
-    scoreHistory = [];
-    currentRack = 1; // Reset rack number
-    rackScores = {}; // Reset rack scores
-
-    // Initialize rackScores for each player for 10 racks
-    players.forEach(player => {
-        rackScores[player] = [];
-        for (let i = 0; i < 10; i++) {
-            rackScores[player].push(0); // Initialize each rack with 0
-        }
-    });
-
-    updateScoreBoard();
-
-    // 1) Clear out and re-populate currentPlayerSelect
-    currentPlayerSelect.innerHTML = '';
-    players.forEach(player => {
-        const option = document.createElement('option');
-        option.value = player;
-        option.textContent = player;
-        currentPlayerSelect.appendChild(option);
-    });
-
-    // 2) Explicitly set the select’s value to the first player
-    currentPlayerSelect.value = players[0];
-    console.log("currentPlayerSelect.value now:", currentPlayerSelect.value);
-
-    // 3) Now call updatePottedBallOptions() with the valid current player
-    updatePottedBallOptions();
-
-    // 4) If STILL no scorable balls, bail out
     if (pottedBallSelect.options.length === 0) {
         console.log("No scorable balls for player:", currentPlayerSelect.value);
         alert('There are no balls with points set. Game cannot start.');
@@ -445,7 +360,6 @@ function updateScoreBoard() {
     const table = document.createElement('table');
     table.classList.add('score-table');
 
-    // Header row
     const headerRow = document.createElement('tr');
     const playerHeader = document.createElement('th');
     playerHeader.textContent = 'Player';
@@ -466,7 +380,6 @@ function updateScoreBoard() {
 
     table.appendChild(headerRow);
 
-    // Player rows
     players.forEach(player => {
         const playerRow = document.createElement('tr');
 
@@ -511,7 +424,6 @@ function recordScore(pocket, wasComboShot = false) {
     const scoreKey = `${ball}_${pocket}`;
     let points = scoringSettings[player][scoreKey] || 0;
 
-    // Check if this is a break run-out (Masawari)
     let isBreakRunOut = false;
     if (parseInt(ball) === 9 && actionHistory.length > 0 && actionHistory[actionHistory.length - 1].type === 'break') {
         const ballsPottedThisRack = actionHistory
@@ -523,7 +435,6 @@ function recordScore(pocket, wasComboShot = false) {
         }
     }
 
-    // Save action for undo
     saveAction({
         type: 'score',
         player,
@@ -535,15 +446,12 @@ function recordScore(pocket, wasComboShot = false) {
         isBreakRunOut
     });
 
-    // Double points if it's a break run-out
     if (isBreakRunOut) {
         points *= 2;
     }
 
-    // Add points for the current player for this rack
     rackScores[player][currentRack - 1] = (rackScores[player][currentRack - 1] || 0) + points;
 
-    // Deduct points from others if 3+ players
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
@@ -554,27 +462,21 @@ function recordScore(pocket, wasComboShot = false) {
 
     updateScoreBoard();
 
-    // Log into score history
     let historyMessage = `${player} ${isBreakRunOut ? 'マスワリ達成！ ' : ''}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`;
     scoreHistory.push(historyMessage);
 
-    // If 9-ball is potted, increment the rack count and handle turn order
     if (parseInt(ball, 10) === 9) {
         currentRack++;
+        // ... existing code ...
 
-        // Check if it's time to change the turn order
-        if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
-            turnOrder.reverse(); // Reverse the turn order for 3 players
-            alert('5ゲーム後、順番が逆になります。');
-        } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
-            alert('10ゲーム後、じゃんけんで順番を決めてください。');
-        }
-
-        // Ensure the player who potted the 9-ball gets the next turn (break)
         currentPlayerSelect.value = player;
         currentTurnIndex = turnOrder.indexOf(player);
+        
+        // Reset the pottedBallSelect to the first scoring ball (e.g., ball #1)
+        pottedBallSelect.selectedIndex = 0; 
+        selectedBall = pottedBallSelect.value; 
+        updateRecordScoreButtonAppearance();
     } else {
-        // If not the 9-ball, only advance to the next ball if NOT a combo shot
         if (!wasComboShot) {
             const options = Array.from(pottedBallSelect.options);
             const currentIndex = options.findIndex(opt => opt.value === ball.toString());
@@ -583,15 +485,14 @@ function recordScore(pocket, wasComboShot = false) {
         }
     }
 
-    // Reset UI states
     cornerBtn.style.display = 'none';
     sideBtn.style.display = 'none';
     recordScoreBtn.classList.remove('selected');
 
-    // Clear out the selected ball
     selectedBall = null;
     updateRecordScoreButtonAppearance();
 }
+
 
 function recordBreak() {
     const player = currentPlayerSelect.value;
@@ -605,14 +506,11 @@ function recordBreak() {
 
     scoreHistory.push(`${player} breaks.`);
 
-    // Check if any balls were potted on the break
     const ballsPottedOnBreak = actionHistory.filter(action => action.type === 'score' && action.rack === currentRack);
 
     if (ballsPottedOnBreak.length === 0) {
-        // If no balls were potted on the break, move to the next player
         nextTurn();
     } else {
-        // If balls were potted, the current player continues their turn
         updateTurnOrderDisplay();
     }
 }
@@ -622,7 +520,6 @@ breakBtn.textContent = 'Break';
 breakBtn.id = 'breakBtn';
 actionsDiv.appendChild(breakBtn);
 
-// Add an event listener for the break button
 breakBtn.addEventListener('click', recordBreak);
 
 function nextPlayer() {
@@ -635,20 +532,16 @@ function nextPlayer() {
 }
 
 function nextTurn() {
-    // Go to next player's index
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
     currentPlayerSelect.value = turnOrder[currentTurnIndex];
 
-    // Save the currently "active" ball
     const ballBeforeUpdate = selectedBall;
 
-    // Refresh the dropdown for the new player
     updatePottedBallOptions();
 
-    // If the ball was "alive," keep it selected in the dropdown
     if (ballBeforeUpdate) {
         const cornerPoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_corner`] || 0;
-        const sidePoints   = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_side`]   || 0;
+        const sidePoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_side`] || 0;
         if (cornerPoints !== 0 || sidePoints !== 0) {
             pottedBallSelect.value = ballBeforeUpdate;
             selectedBall = ballBeforeUpdate;
@@ -766,15 +659,11 @@ window.onload = function() {
     openGameSettingsModal();
 };
 
-// --- コンビ・キャノン・フロック処理 ---
 function openComboCannonFrockModal() {
-    // Clear previous content
     comboFrockBallsContainer.innerHTML = '';
 
-    // Determine current player
     const currentPlayer = currentPlayerSelect.value;
 
-    // Gather all balls that have a nonzero point value for the current player
     const availableBalls = new Set();
     for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
         ['corner', 'side'].forEach(pocketType => {
@@ -786,7 +675,6 @@ function openComboCannonFrockModal() {
         });
     }
 
-    // Create clickable ball images
     availableBalls.forEach(ballNum => {
         const btn = document.createElement('button');
         btn.className = 'pool-ball-button';
@@ -802,7 +690,6 @@ function openComboCannonFrockModal() {
         comboFrockBallsContainer.appendChild(btn);
     });
 
-    // Show modal
     comboCannonFrockModal.style.display = 'block';
 }
 
@@ -811,20 +698,15 @@ function closeComboCannonFrockModal() {
 }
 
 function recordComboCannonFrockScore(ballNumber) {
-    // We are now in a combo shot
     isComboShotActive = true;
 
-    // Set the selected ball to what was chosen in the Combo/Cannon/Frock modal
     selectedBall = ballNumber;
-    // Reflect that selected ball in the pottedBallSelect so the user can see it
     pottedBallSelect.value = ballNumber;
     updateRecordScoreButtonAppearance();
 
-    // Show corner and side buttons, just like when a regular ball is selected
     cornerBtn.style.display = 'inline-block';
     sideBtn.style.display = 'inline-block';
     recordScoreBtn.classList.add('selected');
 
-    // Finally, close the modal
     closeComboCannonFrockModal();
 }
