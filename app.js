@@ -548,17 +548,15 @@ function nextTurn() {
     // If the previously selected ball is still available, keep it selected
     if (isPreviouslySelectedBallAvailable) {
         pottedBallSelect.value = previouslySelectedBall;
+        selectedBall = previouslySelectedBall;
     } else {
         // Optionally, reset to the first available ball
         pottedBallSelect.selectedIndex = 0;
         selectedBall = pottedBallSelect.value; // Update selectedBall with the new selection
+    }
 
-    }
-    // Only update the record score button appearance if selected ball has changed
-    // This avoids unnecessary updates to the ball image
-    if (selectedBall !== previouslySelectedBall){
-        updateRecordScoreButtonAppearance();
-    }
+    // Update the record score button appearance in both cases
+    updateRecordScoreButtonAppearance();
 
     updateTurnOrderDisplay();
 }
