@@ -478,13 +478,6 @@ function recordScore(pocket, wasComboShot = false) {
         // Ensure the player who potted the 9-ball gets the next turn (break)
         currentPlayerSelect.value = player;
         currentTurnIndex = turnOrder.indexOf(player);
-    } else {
-        if (!wasComboShot) {
-            const options = Array.from(pottedBallSelect.options);
-            const currentIndex = options.findIndex(opt => opt.value === ball.toString());
-            let nextIndex = (currentIndex + 1) % options.length;
-            pottedBallSelect.selectedIndex = nextIndex;
-        }
     }
 
     cornerBtn.style.display = 'none';
@@ -537,46 +530,36 @@ function nextTurn() {
     currentTurnIndex = (currentTurnIndex + 1) % players.length;
     currentPlayerSelect.value = turnOrder[currentTurnIndex];
 
-    const ballBeforeUpdate = selectedBall;
+    const previouslySelectedBall = selectedBall; // Store the previously selected ball
 
     updatePottedBallOptions();
 
-    if (ballBeforeUpdate) {
-    const cornerPoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_corner`] || 0;
-    const sidePoints = scoringSettings[currentPlayerSelect.value][`${ballBefore_update}_side`] || 0;
-    
-    // Check if the ball is still alive before setting it
-    const isBallAlive = checkIfBallIsAlive(ballBeforeUpdate);
-    
-    if ((cornerPoints !== 0 || sidePoints !== 0) && isBallAlive) {
-        pottedBallSelect.value = ballBeforeUpdate;
-        selectedBall = ballBeforeUpdate;
-        updateRecordScoreButtonAppearance();
-    } else {
-        // Optionally, reset to the first available ball or leave it unselected
-        pottedBallSelect.selectedIndex = 0; // Resets to the first option
-        selectedBall = pottedBallSelect.value;
-        updateRecordScoreButtonAppearance();
-    }
-}
-
-function checkIfBallIsAlive(ballNumber) {
-    // Iterate through rackScores to determine if the ball has been potted
-    // Assuming that a negative score indicates the ball has been potted by a player
-    for (let player in rackScores) {
-        for (let rack = 0; rack < rackScores[player].length; rack++) {
-            if (rackScores[player][rack] < 0) {
-                // Check if the negative score corresponds to the ballNumber
-                // This assumes that points are directly tied to ball numbers
-                // Modify this logic based on how potted balls are tracked
-                if (Math.abs(rackScores[player][rack]) === ballNumber) {
-                    return false; // Ball is potted
-                }
+    // Check if the previously selected ball is still available
+    let isPreviouslySelectedBallAvailable = false;
+    if (previouslySelectedBall) {
+        for (let i = 0; i < pottedBallSelect.options.length; i++) {
+            if (pottedBallSelect.options[i].value === previouslySelectedBall) {
+                isPreviouslySelectedBallAvailable = true;
+                break;
             }
         }
     }
-    return true; // Ball is still alive
-}
+
+    // If the previously selected ball is still available, keep it selected
+    if (isPreviouslySelectedBallAvailable) {
+        pottedBallSelect.value = previouslySelectedBall;
+    } else {
+        // Optionally, reset to the first available ball
+        pottedBallSelect.selectedIndex = 0;
+        selectedBall = pottedBallSelect.value; // Update selectedBall with the new selection
+
+    }
+    // Only update the record score button appearance if selected ball has changed
+    // This avoids unnecessary updates to the ball image
+    if (selectedBall !== previouslySelectedBall){
+        updateRecordScoreButtonAppearance();
+    }
+
     updateTurnOrderDisplay();
 }
 
