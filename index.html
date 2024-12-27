@@ -13,32 +13,32 @@
         </div>
 
         <div id="actions">
-    <label for="currentPlayer">現在のプレイヤー:</label>
-    <select id="currentPlayer">
-    </select>
+            <label for="currentPlayer">現在のプレイヤー:</label>
+            <select id="currentPlayer">
+            </select>
 
-    <label for="pottedBall">ポットされたボール:</label>
-    <select id="pottedBall">
-    </select>
+            <label for="pottedBall">ポットされたボール:</label>
+            <select id="pottedBall">
+            </select>
 
-    <button id="recordScore" class="pool-ball-button">
-        <img src="" alt="Pool Ball" id="ballImage">
-    </button>
-    <button id="cornerBtn" style="display: none;">
-        <img src="/assets/corner.png" alt="Corner Pocket" class="pocket-img">
-    </button>
-    <button id="sideBtn" style="display: none;">
-        <img src="/assets/center.png" alt="Side Pocket" class="pocket-img">
-    </button>
+            <button id="recordScore" class="pool-ball-button">
+                <img src="" alt="Pool Ball" id="ballImage">
+            </button>
+            <button id="cornerBtn" style="display: none;">
+                <img src="/assets/corner.png" alt="Corner Pocket" class="pocket-img">
+            </button>
+            <button id="sideBtn" style="display: none;">
+                <img src="/assets/center.png" alt="Side Pocket" class="pocket-img">
+            </button>
 
-    <button id="scratch">スクラッチ</button>
-    <button id="nextPlayer">次のプレイヤー</button>
-    <button id="undo">取り消す</button>
-    <button id="viewHistory">スコア履歴を見る</button>
 
-    <!-- Added コンビ・キャノン・フロック button below -->
-    <button id="comboCannonFrockBtn" class="pool-ball-button">コンビ・キャノン・フロック</button>
-</div>
+            <button id="nextPlayer">次のプレイヤー</button>
+            <button id="undo">取り消す</button>
+            <button id="viewHistory">スコア履歴を見る</button>
+
+            <!-- コンビ・キャノン・フロックボタン -->
+            <button id="comboCannonFrockBtn" class="pool-ball-button">コンビ・キャノン・フロック</button>
+        </div>
 
         <div id="turnOrder">
         </div>
@@ -55,23 +55,23 @@
         </div>
     </div>
 
-<div id="gameSettingsModal" class="modal">
-    <div class="modal-content">
-        <h2>ゲーム設定</h2>
-        <div id="gameSettingsContent">
+    <div id="gameSettingsModal" class="modal">
+        <div class="modal-content">
+            <h2>ゲーム設定</h2>
+            <div id="gameSettingsContent">
+            </div>
         </div>
     </div>
-</div>
 
-<div id="comboCannonFrockModal" class="modal">
-    <div class="modal-content">
-        <span id="closeComboModal" class="close">&times;</span>
-        <h2>コンビ・キャノン・フロック</h2>
-        <div id="comboFrockBallsContainer">
-            <!-- Ball images will be injected here -->
+    <div id="comboCannonFrockModal" class="modal">
+        <div class="modal-content">
+            <span id="closeComboModal" class="close">&times;</span>
+            <h2>コンビ・キャノン・フロック</h2>
+            <div id="comboFrockBallsContainer">
+                <!-- Ball images will be injected here -->
+            </div>
         </div>
     </div>
-</div>
 
     <script src="app.js"></script>
 </body>

@@ -4,7 +4,7 @@ const actionsDiv = document.getElementById('actions');
 const currentPlayerSelect = document.getElementById('currentPlayer');
 const pottedBallSelect = document.getElementById('pottedBall');
 const recordScoreBtn = document.getElementById('recordScore');
-const scratchBtn = document.getElementById('scratch');
+// const scratchBtn = document.getElementById('scratch'); // Removed
 const nextPlayerBtn = document.getElementById('nextPlayer');
 const undoBtn = document.getElementById('undo');
 const viewHistoryBtn = document.getElementById('viewHistory');
@@ -33,9 +33,11 @@ let totalRacks = 0;
 let gameType = 'standard';
 let actionHistory = []; 
 let scoreHistory = []; 
+let currentRack = 1; // Initialize the current rack number
+let rackScores = {};  // Initialize rackScores globally
 
 recordScoreBtn.addEventListener('click', selectBall);
-scratchBtn.addEventListener('click', recordScratch);
+// scratchBtn.addEventListener('click', recordScratch); // Removed
 nextPlayerBtn.addEventListener('click', nextPlayer);
 undoBtn.addEventListener('click', undoAction);
 viewHistoryBtn.addEventListener('click', openHistoryModal);
@@ -60,7 +62,7 @@ sideBtn.addEventListener('click', function() {
     isComboShotActive = false;
 });
 
-// コンビ・キャノン・フロック button event
+// Combo/Cannon/Frock button event
 comboCannonFrockBtn.addEventListener('click', openComboCannonFrockModal);
 closeComboModalBtn.addEventListener('click', closeComboCannonFrockModal);
 
@@ -73,11 +75,11 @@ function showSettingsPage1() {
     gameSettingsContent.innerHTML = '';
 
     const heading = document.createElement('h3');
-    heading.textContent = 'プレイヤー設定';
+    heading.textContent = 'Player Settings';
     gameSettingsContent.appendChild(heading);
 
     const numPlayersLabel = document.createElement('label');
-    numPlayersLabel.textContent = 'プレイヤー人数:';
+    numPlayersLabel.textContent = 'Number of Players:';
     gameSettingsContent.appendChild(numPlayersLabel);
 
     const numPlayersSelect = document.createElement('select');
@@ -85,7 +87,7 @@ function showSettingsPage1() {
     for (let i = 1; i <= 4; i++) {
         const option = document.createElement('option');
         option.value = i;
-        option.textContent = i + '名描き';
+        option.textContent = i + (i === 1 ? ' player' : ' players');
         if (i === 2) option.selected = true; 
         numPlayersSelect.appendChild(option);
     }
@@ -102,7 +104,7 @@ function showSettingsPage1() {
     });
 
     const nextButton = document.createElement('button');
-    nextButton.textContent = '次へ';
+    nextButton.textContent = 'Next';
     nextButton.addEventListener('click', showSettingsPage2);
     gameSettingsContent.appendChild(nextButton);
 }
@@ -114,11 +116,11 @@ function generatePlayerInputsSettings(numPlayers) {
     numPlayers = parseInt(numPlayers);
     for (let i = 1; i <= numPlayers; i++) {
         const label = document.createElement('label');
-        label.textContent = `プレイヤー ${i}:`;
+        label.textContent = `Player ${i}:`;
         const input = document.createElement('input');
         input.type = 'text';
         input.id = `player${i}`;
-        input.placeholder = `プレイヤー ${i}`;
+        input.placeholder = `Player ${i}`;
         playerNamesDiv.appendChild(label);
         playerNamesDiv.appendChild(input);
     }
@@ -129,27 +131,27 @@ function showSettingsPage2() {
     players = [];
     for (let i = 1; i <= numPlayers; i++) {
         const playerNameInput = document.getElementById(`player${i}`);
-        const playerName = playerNameInput.value.trim() || `プレイヤー ${i}`;
+        const playerName = playerNameInput.value.trim() || `Player ${i}`;
         players.push(playerName);
     }
 
     gameSettingsContent.innerHTML = '';
 
     const gameTypeLabel = document.createElement('label');
-    gameTypeLabel.textContent = 'ゲームタイプを選択:';
+    gameTypeLabel.textContent = 'Select Game Type:';
     gameSettingsContent.appendChild(gameTypeLabel);
 
     const gameTypeSelect = document.createElement('select');
     gameTypeSelect.id = 'gameType';
     const optionStandard = document.createElement('option');
     optionStandard.value = 'standard';
-    optionStandard.textContent = 'スタンダード(5-9)';
-	optionStandard.selected = true;
+    optionStandard.textContent = 'Standard(5-9)';
+    optionStandard.selected = true;
     gameTypeSelect.appendChild(optionStandard);
 
     const optionCustom = document.createElement('option');
     optionCustom.value = 'custom';
-    optionCustom.textContent = 'カスタム';
+    optionCustom.textContent = 'Custom';
     gameTypeSelect.appendChild(optionCustom);
 
     gameSettingsContent.appendChild(gameTypeSelect);
@@ -165,12 +167,12 @@ function showSettingsPage2() {
     });
 
     const backButton = document.createElement('button');
-    backButton.textContent = '戻る';
+    backButton.textContent = 'Back';
     backButton.addEventListener('click', showSettingsPage1);
     gameSettingsContent.appendChild(backButton);
 
     const startGameButton = document.createElement('button');
-    startGameButton.textContent = 'ゲーム開始';
+    startGameButton.textContent = 'Start Game';
     startGameButton.addEventListener('click', startGame);
     gameSettingsContent.appendChild(startGameButton);
 }
@@ -193,7 +195,7 @@ function generateScoreSettingsTable(gameType) {
         for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
             ['corner', 'side'].forEach(pocketType => {
                 const label = document.createElement('label');
-                label.textContent = `${ballNumber}番${pocketType === 'corner' ? 'C' : 'S'}`;
+                label.textContent = `${ballNumber} ${pocketType === 'corner' ? 'C' : 'S'}`;
 
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -266,7 +268,6 @@ function updateRecordScoreButtonAppearance() {
 }
 
 function startGame() {
-
     gameType = document.getElementById('gameType').value;
 
     scores = {};
@@ -295,6 +296,16 @@ function startGame() {
     totalRacks = 0;
     actionHistory = [];
     scoreHistory = [];
+    currentRack = 1; // Reset rack number
+    rackScores = {}; // Reset rack scores
+
+    // Initialize rackScores for each player
+    players.forEach(player => {
+        rackScores[player] = [];
+        for(let i = 0; i < 10; i++) {
+            rackScores[player].push(0);
+        }
+    });
 
     updateScoreBoard();
 
@@ -317,7 +328,7 @@ function startGame() {
     // 4) If STILL no scorable balls, bail out
     if (pottedBallSelect.options.length === 0) {
         console.log("No scorable balls for player:", currentPlayerSelect.value);
-        alert('ポイントが設定されたボールがありません。ゲームを開始できません。');
+        alert('There are no balls with points set. Game cannot start.');
         return;
     }
 
@@ -328,7 +339,78 @@ function startGame() {
     updateRecordScoreButtonAppearance();
 }
 
+// With this full corrected version ...
+function startGame() {
+    gameType = document.getElementById('gameType').value;
 
+    scores = {};
+    players.forEach(player => {
+        scores[player] = 0;
+    });
+
+    scoringSettings = {};
+
+    players.forEach(player => {
+        scoringSettings[player] = {};
+        for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+            ['corner', 'side'].forEach(pocketType => {
+                const inputId = `score_${player}_${ballNumber}_${pocketType}`;
+                const scoreValue = parseInt(document.getElementById(inputId).value) || 0;
+                scoringSettings[player][`${ballNumber}_${pocketType}`] = scoreValue;
+            });
+        }
+    });
+
+    console.log("Entering startGame(), let's see players & default values…");
+    console.log("scoringSettings after building:", JSON.stringify(scoringSettings, null, 2));
+
+    turnOrder = [...players];
+    currentTurnIndex = 0;
+    totalRacks = 0;
+    actionHistory = [];
+    scoreHistory = [];
+    currentRack = 1; // Reset rack number
+    rackScores = {}; // Reset rack scores
+
+    // Initialize rackScores for each player for 10 racks
+    players.forEach(player => {
+        rackScores[player] = [];
+        for (let i = 0; i < 10; i++) {
+            rackScores[player].push(0); // Initialize each rack with 0
+        }
+    });
+
+    updateScoreBoard();
+
+    // 1) Clear out and re-populate currentPlayerSelect
+    currentPlayerSelect.innerHTML = '';
+    players.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player;
+        option.textContent = player;
+        currentPlayerSelect.appendChild(option);
+    });
+
+    // 2) Explicitly set the select’s value to the first player
+    currentPlayerSelect.value = players[0];
+    console.log("currentPlayerSelect.value now:", currentPlayerSelect.value);
+
+    // 3) Now call updatePottedBallOptions() with the valid current player
+    updatePottedBallOptions();
+
+    // 4) If STILL no scorable balls, bail out
+    if (pottedBallSelect.options.length === 0) {
+        console.log("No scorable balls for player:", currentPlayerSelect.value);
+        alert('There are no balls with points set. Game cannot start.');
+        return;
+    }
+
+    gameSettingsModal.style.display = 'none';
+    gameDiv.style.display = 'block';
+
+    updateTurnOrderDisplay();
+    updateRecordScoreButtonAppearance();
+}
 
 function updatePottedBallOptions() {
     pottedBallSelect.innerHTML = '';
@@ -359,38 +441,87 @@ function updatePottedBallOptions() {
 }
 
 function updateScoreBoard() {
-    scoreBoardDiv.innerHTML = '<h3>スコアボード</h3>';
+    scoreBoardDiv.innerHTML = '<h3>Score Board</h3>';
     const table = document.createElement('table');
+    table.classList.add('score-table');
+
+    // Header row
     const headerRow = document.createElement('tr');
-    players.forEach(player => {
-        const th = document.createElement('th');
-        th.textContent = player;
-        headerRow.appendChild(th);
-    });
+    const playerHeader = document.createElement('th');
+    playerHeader.textContent = 'Player';
+    playerHeader.classList.add('player-header');
+    headerRow.appendChild(playerHeader);
+
+    for (let rackNum = 1; rackNum <= 10; rackNum++) {
+        const rackHeader = document.createElement('th');
+        rackHeader.textContent = `Rack ${rackNum}`;
+        rackHeader.classList.add('rack-header');
+        headerRow.appendChild(rackHeader);
+    }
+
+    const totalHeader = document.createElement('th');
+    totalHeader.textContent = 'Total';
+    totalHeader.classList.add('total-header');
+    headerRow.appendChild(totalHeader);
+
     table.appendChild(headerRow);
 
-    const scoreRow = document.createElement('tr');
+    // Player rows
     players.forEach(player => {
-        const td = document.createElement('td');
-        td.textContent = scores[player];
-        scoreRow.appendChild(td);
+        const playerRow = document.createElement('tr');
+
+        const playerNameCell = document.createElement('td');
+        playerNameCell.textContent = player;
+        playerNameCell.classList.add('player-name-cell');
+        playerRow.appendChild(playerNameCell);
+
+        let playerTotal = 0;
+        for (let rackNum = 1; rackNum <= 10; rackNum++) {
+            const scoreCell = document.createElement('td');
+            let rackScore = 0;
+            if (rackScores[player] && rackScores[player].length >= rackNum) {
+                rackScore = rackScores[player][rackNum - 1];
+                playerTotal += rackScore;
+            }
+            scoreCell.textContent = rackScore;
+            scoreCell.classList.add('score-cell');
+            playerRow.appendChild(scoreCell);
+        }
+
+        const totalCell = document.createElement('td');
+        totalCell.textContent = playerTotal;
+        totalCell.classList.add('total-cell');
+        playerRow.appendChild(totalCell);
+
+        table.appendChild(playerRow);
     });
-    table.appendChild(scoreRow);
 
     scoreBoardDiv.appendChild(table);
 }
 
 function recordScore(pocket, wasComboShot = false) {
     const player = currentPlayerSelect.value;
-    const ball = selectedBall; 
+    const ball = selectedBall;
 
     if (!ball) {
-        alert('ボールが選択されていません。');
+        alert('A ball has not been selected.');
         return;
     }
 
     const scoreKey = `${ball}_${pocket}`;
     let points = scoringSettings[player][scoreKey] || 0;
+
+    // Check if this is a break run-out (Masawari)
+    let isBreakRunOut = false;
+    if (parseInt(ball) === 9 && actionHistory.length > 0 && actionHistory[actionHistory.length - 1].type === 'break') {
+        const ballsPottedThisRack = actionHistory
+            .filter(action => action.type === 'score' && action.rack === currentRack && action.player === player)
+            .map(action => parseInt(action.ball));
+
+        if (ballsPottedThisRack.length === 8) {
+            isBreakRunOut = true;
+        }
+    }
 
     // Save action for undo
     saveAction({
@@ -399,17 +530,24 @@ function recordScore(pocket, wasComboShot = false) {
         points,
         scoresSnapshot: { ...scores },
         ball,
-        pocket
+        pocket,
+        rack: currentRack,
+        isBreakRunOut
     });
 
-    // Add points for current player
-    scores[player] += points;
+    // Double points if it's a break run-out
+    if (isBreakRunOut) {
+        points *= 2;
+    }
+
+    // Add points for the current player for this rack
+    rackScores[player][currentRack - 1] = (rackScores[player][currentRack - 1] || 0) + points;
 
     // Deduct points from others if 3+ players
     if (players.length >= 3) {
         players.forEach(p => {
             if (p !== player) {
-                scores[p] -= points;
+                rackScores[p][currentRack - 1] = (rackScores[p][currentRack - 1] || 0) - points;
             }
         });
     }
@@ -417,25 +555,22 @@ function recordScore(pocket, wasComboShot = false) {
     updateScoreBoard();
 
     // Log into score history
-    scoreHistory.push(
-        `${player}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`
-    );
+    let historyMessage = `${player} ${isBreakRunOut ? 'マスワリ達成！ ' : ''}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`;
+    scoreHistory.push(historyMessage);
 
-    // If 9-ball is potted, increment the frame count
+    // If 9-ball is potted, increment the rack count and handle turn order
     if (parseInt(ball, 10) === 9) {
-        totalRacks++;
+        currentRack++;
 
-        // Reverse order every 5 frames if 3 players
-        if (players.length === 3 && totalRacks % 5 === 0) {
-            turnOrder.reverse();
+        // Check if it's time to change the turn order
+        if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
+            turnOrder.reverse(); // Reverse the turn order for 3 players
             alert('5ゲーム後、順番が逆になります。');
-        }
-        // Special note every 10 frames if 4 players
-        else if (players.length === 4 && totalRacks % 10 === 0) {
+        } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
             alert('10ゲーム後、じゃんけんで順番を決めてください。');
         }
 
-        // Make sure the 9-ball potter remains the currentPlayer
+        // Ensure the player who potted the 9-ball gets the next turn (break)
         currentPlayerSelect.value = player;
         currentTurnIndex = turnOrder.indexOf(player);
     } else {
@@ -458,19 +593,37 @@ function recordScore(pocket, wasComboShot = false) {
     updateRecordScoreButtonAppearance();
 }
 
-function recordScratch() {
+function recordBreak() {
     const player = currentPlayerSelect.value;
 
     saveAction({
-        type: 'scratch',
+        type: 'break',
         player: player,
+        rack: currentRack,
         scoresSnapshot: { ...scores }
     });
 
-    scoreHistory.push(`${player}はスクラッチしました。ポイントはありません。`);
+    scoreHistory.push(`${player} breaks.`);
 
-    nextTurn();
+    // Check if any balls were potted on the break
+    const ballsPottedOnBreak = actionHistory.filter(action => action.type === 'score' && action.rack === currentRack);
+
+    if (ballsPottedOnBreak.length === 0) {
+        // If no balls were potted on the break, move to the next player
+        nextTurn();
+    } else {
+        // If balls were potted, the current player continues their turn
+        updateTurnOrderDisplay();
+    }
 }
+
+const breakBtn = document.createElement('button');
+breakBtn.textContent = 'Break';
+breakBtn.id = 'breakBtn';
+actionsDiv.appendChild(breakBtn);
+
+// Add an event listener for the break button
+breakBtn.addEventListener('click', recordBreak);
 
 function nextPlayer() {
     saveAction({
@@ -562,14 +715,7 @@ function undoAction() {
             pottedBallSelect.value = lastAction.ball;
             updateRecordScoreButtonAppearance();
             break;
-        case 'scratch':
-            scores = lastAction.scoresSnapshot;
-            updateScoreBoard();
-            currentTurnIndex = (lastAction.previousTurnIndex + players.length) % players.length;
-            currentPlayerSelect.value = turnOrder[currentTurnIndex];
-            updateTurnOrderDisplay();
-            scoreHistory.pop();
-            break;
+
         case 'nextPlayer':
             currentTurnIndex = lastAction.previousTurnIndex;
             currentPlayerSelect.value = turnOrder[currentTurnIndex];
@@ -682,5 +828,3 @@ function recordComboCannonFrockScore(ballNumber) {
     // Finally, close the modal
     closeComboCannonFrockModal();
 }
-
-
