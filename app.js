@@ -467,15 +467,17 @@ function recordScore(pocket, wasComboShot = false) {
 
     if (parseInt(ball, 10) === 9) {
         currentRack++;
-        // ... existing code ...
+        // Check if it's time to change the turn order
+        if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
+            turnOrder.reverse(); // Reverse the turn order for 3 players
+            alert('5ゲーム後、順番が逆になります。');
+        } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
+            alert('10ゲーム後、じゃんけんで順番を決めてください。');
+        }
 
+        // Ensure the player who potted the 9-ball gets the next turn (break)
         currentPlayerSelect.value = player;
         currentTurnIndex = turnOrder.indexOf(player);
-        
-        // Reset the pottedBallSelect to the first scoring ball (e.g., ball #1)
-        pottedBallSelect.selectedIndex = 0; 
-        selectedBall = pottedBallSelect.value; 
-        updateRecordScoreButtonAppearance();
     } else {
         if (!wasComboShot) {
             const options = Array.from(pottedBallSelect.options);
@@ -575,8 +577,6 @@ function checkIfBallIsAlive(ballNumber) {
     }
     return true; // Ball is still alive
 }
-
-
     updateTurnOrderDisplay();
 }
 
