@@ -540,14 +540,42 @@ function nextTurn() {
     updatePottedBallOptions();
 
     if (ballBeforeUpdate) {
-        const cornerPoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_corner`] || 0;
-        const sidePoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_side`] || 0;
-        if (cornerPoints !== 0 || sidePoints !== 0) {
-            pottedBallSelect.value = ballBeforeUpdate;
-            selectedBall = ballBeforeUpdate;
-            updateRecordScoreButtonAppearance();
+    const cornerPoints = scoringSettings[currentPlayerSelect.value][`${ballBeforeUpdate}_corner`] || 0;
+    const sidePoints = scoringSettings[currentPlayerSelect.value][`${ballBefore_update}_side`] || 0;
+    
+    // Check if the ball is still alive before setting it
+    const isBallAlive = checkIfBallIsAlive(ballBeforeUpdate);
+    
+    if ((cornerPoints !== 0 || sidePoints !== 0) && isBallAlive) {
+        pottedBallSelect.value = ballBeforeUpdate;
+        selectedBall = ballBeforeUpdate;
+        updateRecordScoreButtonAppearance();
+    } else {
+        // Optionally, reset to the first available ball or leave it unselected
+        pottedBallSelect.selectedIndex = 0; // Resets to the first option
+        selectedBall = pottedBallSelect.value;
+        updateRecordScoreButtonAppearance();
+    }
+}
+
+function checkIfBallIsAlive(ballNumber) {
+    // Iterate through rackScores to determine if the ball has been potted
+    // Assuming that a negative score indicates the ball has been potted by a player
+    for (let player in rackScores) {
+        for (let rack = 0; rack < rackScores[player].length; rack++) {
+            if (rackScores[player][rack] < 0) {
+                // Check if the negative score corresponds to the ballNumber
+                // This assumes that points are directly tied to ball numbers
+                // Modify this logic based on how potted balls are tracked
+                if (Math.abs(rackScores[player][rack]) === ballNumber) {
+                    return false; // Ball is potted
+                }
+            }
         }
     }
+    return true; // Ball is still alive
+}
+
 
     updateTurnOrderDisplay();
 }
