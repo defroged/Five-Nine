@@ -469,7 +469,11 @@ function recordScore(pocket, wasComboShot = false) {
     scoreHistory.push(historyMessage);
 
     if (parseInt(ball, 10) === 9) {
+    // ======================================
+    // 9-ball potted -> end rack, start new
+    // ======================================
     currentRack++;
+
     // Check if it's time to change the turn order
     if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
         turnOrder.reverse();
@@ -482,69 +486,77 @@ function recordScore(pocket, wasComboShot = false) {
     currentPlayerSelect.value = player;
     currentTurnIndex = turnOrder.indexOf(player);
 
-    // 1. Re-populate dropdown for new rack, if needed
+    // 1. Re-populate dropdown for new rack
     updatePottedBallOptions();
 
-    // 2. Determine the first available scoring ball for the new rack
-(function() {
-    const currentPlayer = currentPlayerSelect.value;
-    const availableOptions = Array.from(pottedBallSelect.options);
+    // 2. Try to set the "first available scoring ball"
+    (function() {
+        const availableOptions = Array.from(pottedBallSelect.options);
 
-    // 2A. Try to find if there's a ball lower than 5 in scoring settings
-    let lowerThanFiveOption = null;
-    for (let i = 1; i < 5; i++) {
-        const found = availableOptions.find(opt => opt.value === i.toString());
-        if (found) {
-            lowerThanFiveOption = found;
-            break;
-        }
-    }
-
-    // 2B. If a ball lower than 5 is available, use it.
-    if (lowerThanFiveOption) {
-        pottedBallSelect.value = lowerThanFiveOption.value;
-        selectedBall = lowerThanFiveOption.value;
-    } else {
-        // 2C. Otherwise, try the 5-ball
-        const fiveBallOption = availableOptions.find(opt => opt.value === '5');
-        if (fiveBallOption) {
-            pottedBallSelect.value = '5';
-            selectedBall = '5';
-        } else {
-            // 2D. If there's no 5-ball, pick the first scorable ball (if any)
-            if (availableOptions.length > 0) {
-                pottedBallSelect.selectedIndex = 0;
-                selectedBall = pottedBallSelect.value;
-            } else {
-                // No scorable balls at all
-                selectedBall = null;
+        // A. If there's a ball <5, use that
+        let lowerThanFiveOption = null;
+        for (let i = 1; i < 5; i++) {
+            const found = availableOptions.find(opt => opt.value === i.toString());
+            if (found) {
+                lowerThanFiveOption = found;
+                break;
             }
         }
+
+        if (lowerThanFiveOption) {
+            pottedBallSelect.value = lowerThanFiveOption.value;
+            selectedBall = lowerThanFiveOption.value;
+        } else {
+            // B. Otherwise, pick the 5-ball if it’s there
+            const fiveBallOption = availableOptions.find(opt => opt.value === '5');
+            if (fiveBallOption) {
+                pottedBallSelect.value = '5';
+                selectedBall = '5';
+            } else {
+                // C. Otherwise pick the first scorable ball
+                if (availableOptions.length > 0) {
+                    pottedBallSelect.selectedIndex = 0;
+                    selectedBall = pottedBallSelect.value;
+                } else {
+                    // No scorable balls at all
+                    selectedBall = null;
+                }
+            }
+        }
+    })();
+
+    // Hide corner/side buttons and reset the "selected" styling
+    cornerBtn.style.display = 'none';
+    sideBtn.style.display = 'none';
+    recordScoreBtn.classList.remove('selected');
+
+    // Update the ballImage (or clear it)
+    updateRecordScoreButtonAppearance();
+
+} else {
+    // =========================================================
+    // If the potted ball is NOT 9, pick the next ball (if any)
+    // =========================================================
+    cornerBtn.style.display = 'none';
+    sideBtn.style.display = 'none';
+    recordScoreBtn.classList.remove('selected');
+
+    // 1. Find current index of the ball just potted
+    const currentIndex = pottedBallSelect.selectedIndex;
+
+    // 2. If there is a “next” entry in the dropdown, select it
+    if (currentIndex < pottedBallSelect.options.length - 1) {
+        pottedBallSelect.selectedIndex = currentIndex + 1;
+        selectedBall = pottedBallSelect.value;
+    } else {
+        // No more “next” ball in the dropdown
+        selectedBall = null;
     }
 
+    // 3. Update the ballImage to show whichever ball is now selected (or clear it if none)
     updateRecordScoreButtonAppearance();
-})();
-
 }
 
-cornerBtn.style.display = 'none';
-sideBtn.style.display = 'none';
-recordScoreBtn.classList.remove('selected');
-
-// 1. Find current index of the ball just potted
-const currentIndex = pottedBallSelect.selectedIndex;
-
-// 2. If there is a “next” entry in the dropdown, select it
-if (currentIndex < pottedBallSelect.options.length - 1) {
-    pottedBallSelect.selectedIndex = currentIndex + 1;
-    selectedBall = pottedBallSelect.value;
-} else {
-    // No more “next” ball in the dropdown
-    selectedBall = null;
-}
-
-// 3. Update the ballImage to show whichever ball is now selected (or clear it if none)
-updateRecordScoreButtonAppearance();
 
 }
 
