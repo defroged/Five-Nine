@@ -469,19 +469,40 @@ function recordScore(pocket, wasComboShot = false) {
     scoreHistory.push(historyMessage);
 
     if (parseInt(ball, 10) === 9) {
-        currentRack++;
-        // Check if it's time to change the turn order
-        if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
-            turnOrder.reverse(); // Reverse the turn order for 3 players
-            alert('5ゲーム後、順番が逆になります。');
-        } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
-            alert('10ゲーム後、じゃんけんで順番を決めてください。');
-        }
-
-        // Ensure the player who potted the 9-ball gets the next turn (break)
-        currentPlayerSelect.value = player;
-        currentTurnIndex = turnOrder.indexOf(player);
+    currentRack++;
+    // Check if it's time to change the turn order
+    if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
+        turnOrder.reverse();
+        alert('5ゲーム後、順番が逆になります。');
+    } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
+        alert('10ゲーム後、じゃんけんで順番を決めてください。');
     }
+
+    // Ensure the player who potted the 9-ball gets the next turn (break)
+    currentPlayerSelect.value = player;
+    currentTurnIndex = turnOrder.indexOf(player);
+
+    // 1. Re-populate dropdown for new rack, if needed
+    updatePottedBallOptions();
+
+    // 2. Set dropdown & selectedBall to "5" by default (if it exists)
+    const fiveBallOption = Array.from(pottedBallSelect.options).find(opt => opt.value === '5');
+    if (fiveBallOption) {
+        pottedBallSelect.value = '5';
+        selectedBall = '5';
+    } else {
+        // If there's no 5 ball in custom scoring, pick the first scorable ball
+        if (pottedBallSelect.options.length > 0) {
+            pottedBallSelect.selectedIndex = 0;
+            selectedBall = pottedBallSelect.value;
+        } else {
+            // No scorable balls at all
+            selectedBall = null;
+        }
+    }
+
+    updateRecordScoreButtonAppearance();
+}
 
 cornerBtn.style.display = 'none';
 sideBtn.style.display = 'none';
