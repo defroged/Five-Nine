@@ -484,11 +484,28 @@ function recordScore(pocket, wasComboShot = false) {
     }
 
     cornerBtn.style.display = 'none';
-    sideBtn.style.display = 'none';
-    recordScoreBtn.classList.remove('selected');
+sideBtn.style.display = 'none';
+recordScoreBtn.classList.remove('selected');
 
-    selectedBall = null;
-    updateRecordScoreButtonAppearance();
+// 1. Remove the potted ball from the dropdown
+for (let i = 0; i < pottedBallSelect.options.length; i++) {
+    if (pottedBallSelect.options[i].value === ball) {
+        pottedBallSelect.remove(i);
+        break;
+    }
+}
+
+// 2. If another scoring ball is still available, select the first one
+if (pottedBallSelect.options.length > 0) {
+    pottedBallSelect.selectedIndex = 0;
+    selectedBall = pottedBallSelect.value;
+} else {
+    selectedBall = null; // No more scoring balls
+}
+
+// 3. Update the ball image
+updateRecordScoreButtonAppearance();
+
 }
 
 
