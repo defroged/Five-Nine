@@ -485,23 +485,46 @@ function recordScore(pocket, wasComboShot = false) {
     // 1. Re-populate dropdown for new rack, if needed
     updatePottedBallOptions();
 
-    // 2. Set dropdown & selectedBall to "5" by default (if it exists)
-    const fiveBallOption = Array.from(pottedBallSelect.options).find(opt => opt.value === '5');
-    if (fiveBallOption) {
-        pottedBallSelect.value = '5';
-        selectedBall = '5';
+    // 2. Determine the first available scoring ball for the new rack
+(function() {
+    const currentPlayer = currentPlayerSelect.value;
+    const availableOptions = Array.from(pottedBallSelect.options);
+
+    // 2A. Try to find if there's a ball lower than 5 in scoring settings
+    let lowerThanFiveOption = null;
+    for (let i = 1; i < 5; i++) {
+        const found = availableOptions.find(opt => opt.value === i.toString());
+        if (found) {
+            lowerThanFiveOption = found;
+            break;
+        }
+    }
+
+    // 2B. If a ball lower than 5 is available, use it.
+    if (lowerThanFiveOption) {
+        pottedBallSelect.value = lowerThanFiveOption.value;
+        selectedBall = lowerThanFiveOption.value;
     } else {
-        // If there's no 5 ball in custom scoring, pick the first scorable ball
-        if (pottedBallSelect.options.length > 0) {
-            pottedBallSelect.selectedIndex = 0;
-            selectedBall = pottedBallSelect.value;
+        // 2C. Otherwise, try the 5-ball
+        const fiveBallOption = availableOptions.find(opt => opt.value === '5');
+        if (fiveBallOption) {
+            pottedBallSelect.value = '5';
+            selectedBall = '5';
         } else {
-            // No scorable balls at all
-            selectedBall = null;
+            // 2D. If there's no 5-ball, pick the first scorable ball (if any)
+            if (availableOptions.length > 0) {
+                pottedBallSelect.selectedIndex = 0;
+                selectedBall = pottedBallSelect.value;
+            } else {
+                // No scorable balls at all
+                selectedBall = null;
+            }
         }
     }
 
     updateRecordScoreButtonAppearance();
+})();
+
 }
 
 cornerBtn.style.display = 'none';
