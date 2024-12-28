@@ -483,27 +483,23 @@ function recordScore(pocket, wasComboShot = false) {
         currentTurnIndex = turnOrder.indexOf(player);
     }
 
-    cornerBtn.style.display = 'none';
+cornerBtn.style.display = 'none';
 sideBtn.style.display = 'none';
 recordScoreBtn.classList.remove('selected');
 
-// 1. Remove the potted ball from the dropdown
-for (let i = 0; i < pottedBallSelect.options.length; i++) {
-    if (pottedBallSelect.options[i].value === ball) {
-        pottedBallSelect.remove(i);
-        break;
-    }
-}
+// 1. Find current index of the ball just potted
+const currentIndex = pottedBallSelect.selectedIndex;
 
-// 2. If another scoring ball is still available, select the first one
-if (pottedBallSelect.options.length > 0) {
-    pottedBallSelect.selectedIndex = 0;
+// 2. If there is a “next” entry in the dropdown, select it
+if (currentIndex < pottedBallSelect.options.length - 1) {
+    pottedBallSelect.selectedIndex = currentIndex + 1;
     selectedBall = pottedBallSelect.value;
 } else {
-    selectedBall = null; // No more scoring balls
+    // No more “next” ball in the dropdown
+    selectedBall = null;
 }
 
-// 3. Update the ball image
+// 3. Update the ballImage to show whichever ball is now selected (or clear it if none)
 updateRecordScoreButtonAppearance();
 
 }
