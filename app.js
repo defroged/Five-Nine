@@ -48,6 +48,7 @@ pottedBallSelect.addEventListener('change', function() {
 });
 
 let isComboShotActive = false;
+let pottedBalls = new Set(); // Track balls that have actually been potted (not combo/cannon/fluke)
 
 cornerBtn.addEventListener('click', function() {
     recordScore('corner', isComboShotActive);
@@ -468,97 +469,104 @@ function recordScore(pocket, wasComboShot = false) {
     let historyMessage = `${player} ${isBreakRunOut ? 'マスワリ達成！ ' : ''}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`;
     scoreHistory.push(historyMessage);
 
-    if (parseInt(ball, 10) === 9) {
-    // ======================================
-    // 9-ball potted -> end rack, start new
-    // ======================================
-    currentRack++;
-
-    // Check if it's time to change the turn order
-    if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
-        turnOrder.reverse();
-        alert('5ゲーム後、順番が逆になります。');
-    } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
-        alert('10ゲーム後、じゃんけんで順番を決めてください。');
+    // If the shot is NOT a combo/cannon/fluke, mark the ball as truly potted
+    if (!wasComboShot) {
+        pottedBalls.add(parseInt(ball, 10));
     }
 
-    // Ensure the player who potted the 9-ball gets the next turn (break)
-    currentPlayerSelect.value = player;
-    currentTurnIndex = turnOrder.indexOf(player);
+    if (parseInt(ball, 10) === 9) {
+        // ======================================
+        // 9-ball potted -> end rack, start new
+        // ======================================
+        currentRack++;
 
-    // 1. Re-populate dropdown for new rack
-    updatePottedBallOptions();
-
-    // 2. Try to set the "first available scoring ball"
-    (function() {
-        const availableOptions = Array.from(pottedBallSelect.options);
-
-        // A. If there's a ball <5, use that
-        let lowerThanFiveOption = null;
-        for (let i = 1; i < 5; i++) {
-            const found = availableOptions.find(opt => opt.value === i.toString());
-            if (found) {
-                lowerThanFiveOption = found;
-                break;
-            }
+        // Check if it's time to change the turn order
+        if (players.length === 3 && currentRack % 5 === 1 && currentRack !== 1) {
+            turnOrder.reverse();
+            alert('5ゲーム後、順番が逆になります。');
+        } else if (players.length === 4 && currentRack % 10 === 1 && currentRack !== 1) {
+            alert('10ゲーム後、じゃんけんで順番を決めてください。');
         }
 
-        if (lowerThanFiveOption) {
-            pottedBallSelect.value = lowerThanFiveOption.value;
-            selectedBall = lowerThanFiveOption.value;
-        } else {
-            // B. Otherwise, pick the 5-ball if it’s there
-            const fiveBallOption = availableOptions.find(opt => opt.value === '5');
-            if (fiveBallOption) {
-                pottedBallSelect.value = '5';
-                selectedBall = '5';
-            } else {
-                // C. Otherwise pick the first scorable ball
-                if (availableOptions.length > 0) {
-                    pottedBallSelect.selectedIndex = 0;
-                    selectedBall = pottedBallSelect.value;
-                } else {
-                    // No scorable balls at all
-                    selectedBall = null;
+        // Ensure the player who potted the 9-ball gets the next turn (break)
+        currentPlayerSelect.value = player;
+        currentTurnIndex = turnOrder.indexOf(player);
+
+        // 1. Re-populate dropdown for new rack
+        updatePottedBallOptions();
+
+        // 2. Try to set the "first available scoring ball"
+        (function() {
+            const availableOptions = Array.from(pottedBallSelect.options);
+
+            // A. If there's a ball <5, use that
+            let lowerThanFiveOption = null;
+            for (let i = 1; i < 5; i++) {
+                const found = availableOptions.find(opt => opt.value === i.toString());
+                if (found) {
+                    lowerThanFiveOption = found;
+                    break;
                 }
             }
-        }
-    })();
 
-    // Hide corner/side buttons and reset the "selected" styling
-    cornerBtn.style.display = 'none';
-    sideBtn.style.display = 'none';
-    recordScoreBtn.classList.remove('selected');
+            if (lowerThanFiveOption) {
+                pottedBallSelect.value = lowerThanFiveOption.value;
+                selectedBall = lowerThanFiveOption.value;
+            } else {
+                // B. Otherwise, pick the 5-ball if it’s there
+                const fiveBallOption = availableOptions.find(opt => opt.value === '5');
+                if (fiveBallOption) {
+                    pottedBallSelect.value = '5';
+                    selectedBall = '5';
+                } else {
+                    // C. Otherwise pick the first scorable ball
+                    if (availableOptions.length > 0) {
+                        pottedBallSelect.selectedIndex = 0;
+                        selectedBall = pottedBallSelect.value;
+                    } else {
+                        // No scorable balls at all
+                        selectedBall = null;
+                    }
+                }
+            }
+        })();
 
-    // Update the ballImage (or clear it)
-    updateRecordScoreButtonAppearance();
+        // Hide corner/side buttons and reset the "selected" styling
+        cornerBtn.style.display = 'none';
+        sideBtn.style.display = 'none';
+        recordScoreBtn.classList.remove('selected');
 
-} else {
-    // =========================================================
-    // If the potted ball is NOT 9, pick the next ball (if any)
-    // =========================================================
-    cornerBtn.style.display = 'none';
-    sideBtn.style.display = 'none';
-    recordScoreBtn.classList.remove('selected');
+        // Update the ballImage (or clear it)
+        updateRecordScoreButtonAppearance();
 
-    // 1. Find current index of the ball just potted
-    const currentIndex = pottedBallSelect.selectedIndex;
-
-    // 2. If there is a “next” entry in the dropdown, select it
-    if (currentIndex < pottedBallSelect.options.length - 1) {
-        pottedBallSelect.selectedIndex = currentIndex + 1;
-        selectedBall = pottedBallSelect.value;
     } else {
-        // No more “next” ball in the dropdown
-        selectedBall = null;
+        // =========================================================
+        // If the potted ball is NOT 9
+        // =========================================================
+        // If it's NOT a combo shot, move to the next ball in the dropdown
+        if (!wasComboShot) {
+            cornerBtn.style.display = 'none';
+            sideBtn.style.display = 'none';
+            recordScoreBtn.classList.remove('selected');
+
+            // 1. Find current index of the ball just potted
+            const currentIndex = pottedBallSelect.selectedIndex;
+
+            // 2. If there is a “next” entry in the dropdown, select it
+            if (currentIndex < pottedBallSelect.options.length - 1) {
+                pottedBallSelect.selectedIndex = currentIndex + 1;
+                selectedBall = pottedBallSelect.value;
+            } else {
+                // No more “next” ball in the dropdown
+                selectedBall = null;
+            }
+
+            // 3. Update the ballImage to show whichever ball is now selected (or clear it if none)
+            updateRecordScoreButtonAppearance();
+        }
     }
-
-    // 3. Update the ballImage to show whichever ball is now selected (or clear it if none)
-    updateRecordScoreButtonAppearance();
 }
 
-
-}
 
 
 function recordBreak() {
@@ -745,8 +753,15 @@ function openComboCannonFrockModal() {
 
     const currentPlayer = currentPlayerSelect.value;
 
+    // Display only balls that:
+    // 1) Have a nonzero scoring value
+    // 2) Are NOT in the pottedBalls set
     const availableBalls = new Set();
     for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
+        // Skip if it's already truly potted
+        if (pottedBalls.has(ballNumber)) {
+            continue;
+        }
         ['corner', 'side'].forEach(pocketType => {
             const scoreKey = `${ballNumber}_${pocketType}`;
             const points = scoringSettings[currentPlayer][scoreKey];
@@ -773,6 +788,7 @@ function openComboCannonFrockModal() {
 
     comboCannonFrockModal.style.display = 'block';
 }
+
 
 function closeComboCannonFrockModal() {
     comboCannonFrockModal.style.display = 'none';
