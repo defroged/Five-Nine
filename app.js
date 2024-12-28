@@ -48,7 +48,11 @@ pottedBallSelect.addEventListener('change', function() {
 });
 
 let isComboShotActive = false;
-let pottedBalls = new Set(); // Track balls that have actually been potted (not combo/cannon/fluke)
+
+// This set holds only balls potted legally (normal shots).
+// Fluke/Combo/Cannon potted balls do NOT go here, as they return to the table.
+let legallyPottedBalls = new Set();
+
 
 cornerBtn.addEventListener('click', function() {
     recordScore('corner', isComboShotActive);
@@ -469,9 +473,9 @@ function recordScore(pocket, wasComboShot = false) {
     let historyMessage = `${player} ${isBreakRunOut ? 'マスワリ達成！ ' : ''}は${ball}番を${pocket === 'corner' ? 'コーナー' : 'サイド'}に入れ、${points}ポイント獲得。`;
     scoreHistory.push(historyMessage);
 
-    // If the shot is NOT a combo/cannon/fluke, mark the ball as truly potted
+    // Only if this was a normal (legal) shot, mark the ball as truly potted
     if (!wasComboShot) {
-        pottedBalls.add(parseInt(ball, 10));
+        legallyPottedBalls.add(parseInt(ball, 10));
     }
 
     if (parseInt(ball, 10) === 9) {
@@ -540,19 +544,14 @@ function recordScore(pocket, wasComboShot = false) {
         updateRecordScoreButtonAppearance();
 
     } else {
-        // =========================================================
         // If the potted ball is NOT 9
-        // =========================================================
-        // If it's NOT a combo shot, move to the next ball in the dropdown
+        // If it's NOT a combo/cannon/fluke, move to the next ball
         if (!wasComboShot) {
             cornerBtn.style.display = 'none';
             sideBtn.style.display = 'none';
             recordScoreBtn.classList.remove('selected');
 
-            // 1. Find current index of the ball just potted
             const currentIndex = pottedBallSelect.selectedIndex;
-
-            // 2. If there is a “next” entry in the dropdown, select it
             if (currentIndex < pottedBallSelect.options.length - 1) {
                 pottedBallSelect.selectedIndex = currentIndex + 1;
                 selectedBall = pottedBallSelect.value;
@@ -561,11 +560,11 @@ function recordScore(pocket, wasComboShot = false) {
                 selectedBall = null;
             }
 
-            // 3. Update the ballImage to show whichever ball is now selected (or clear it if none)
             updateRecordScoreButtonAppearance();
         }
     }
 }
+
 
 
 
@@ -753,15 +752,14 @@ function openComboCannonFrockModal() {
 
     const currentPlayer = currentPlayerSelect.value;
 
-    // Display only balls that:
-    // 1) Have a nonzero scoring value
-    // 2) Are NOT in the pottedBalls set
+    // Build a set of “still available” balls, skipping those in legallyPottedBalls
     const availableBalls = new Set();
     for (let ballNumber = 1; ballNumber <= 9; ballNumber++) {
-        // Skip if it's already truly potted
-        if (pottedBalls.has(ballNumber)) {
+        // If it's in legallyPottedBalls, skip it
+        if (legallyPottedBalls.has(ballNumber)) {
             continue;
         }
+        // If current player has a nonzero scoring for that ball (corner/side), it's valid
         ['corner', 'side'].forEach(pocketType => {
             const scoreKey = `${ballNumber}_${pocketType}`;
             const points = scoringSettings[currentPlayer][scoreKey];
@@ -771,6 +769,7 @@ function openComboCannonFrockModal() {
         });
     }
 
+    // Create a button for each available ball
     availableBalls.forEach(ballNum => {
         const btn = document.createElement('button');
         btn.className = 'pool-ball-button';
@@ -788,6 +787,7 @@ function openComboCannonFrockModal() {
 
     comboCannonFrockModal.style.display = 'block';
 }
+
 
 
 function closeComboCannonFrockModal() {
