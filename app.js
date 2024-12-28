@@ -42,7 +42,10 @@ viewHistoryBtn.addEventListener('click', openHistoryModal);
 closeModalBtn.addEventListener('click', closeHistoryModal);
 window.addEventListener('click', outsideClick);
 endGameBtn.addEventListener('click', endGame);
-pottedBallSelect.addEventListener('change', updateRecordScoreButtonAppearance);
+pottedBallSelect.addEventListener('change', function() {
+    selectedBall = pottedBallSelect.value;
+    updateRecordScoreButtonAppearance();
+});
 
 let isComboShotActive = false;
 
@@ -251,7 +254,7 @@ function updateRecordScoreButtonText() {
 
 function updateRecordScoreButtonAppearance() {
     const ballImage = document.getElementById('ballImage');
-    const ballToDisplay = selectedBall || pottedBallSelect.value;
+    const ballToDisplay = pottedBallSelect.value;
 
     if (ballToDisplay) {
         ballImage.src = `/assets/${ballToDisplay}ball.png`;
